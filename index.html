@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tarjeta de Deméritos - Sistema Automático</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+body{
+    font-family: Arial, sans-serif;
+    background:#f4f6f9;
+    margin:0;
+}
+
+header{
+    background:#003366;
+    color:white;
+    padding:20px;
+    text-align:center;
+}
+
+.container{
+    width:95%;
+    margin:20px auto;
+    background:white;
+    padding:20px;
+    border-radius:8px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.1);
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:15px;
+}
+
+input, select{
+    width:100%;
+    padding:6px;
+    margin-bottom:8px;
+    border:1px solid #ccc;
+    border-radius:4px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:15px;
+    font-size:12px;
+}
+
+th, td{
+    border:1px solid #999;
+    padding:5px;
+    text-align:center;
+}
+
+th{
+    background:#003366;
+    color:white;
+}
+
+button{
+    background:#003366;
+    color:white;
+    padding:10px 20px;
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
+    margin-top:15px;
+}
+
+#totalBox{
+    margin-top:15px;
+    padding:10px;
+    font-weight:bold;
+    border-radius:6px;
+}
+
+.alerta{
+    margin-top:10px;
+    padding:10px;
+    border-radius:6px;
+    font-weight:bold;
+}
+
+.verde{background:#d4edda;color:#155724;}
+.amarillo{background:#fff3cd;color:#856404;}
+.naranja{background:#ffe0b2;color:#8a4b00;}
+.rojo{background:#f8d7da;color:#721c24;}
+</style>
+</head>
+
+<body>
+
+<header>
+<h2>Instrumento No. 001</h2>
+<h1>Tarjeta de Deméritos del Estudiante</h1>
+</header>
+
+<div class="container" id="contenidoPDF">
+
+<h3>Datos Generales</h3>
+
+<div class="grid">
+<div>
+<input placeholder="Centro Educativo">
+<input placeholder="Nombre del Estudiante">
+</div>
+<div>
+<input placeholder="Grado / Sección">
+<input placeholder="NIE">
+</div>
+</div>
+
+<h3>Registro</h3>
+
+<table>
+<tr>
+<th>No.</th>
+<th>Fecha</th>
+<th>D-A</th>
+<th>D-B</th>
+<th>D-C</th>
+<th>D-D</th>
+<th>R-A</th>
+<th>R-B</th>
+<th>R-C</th>
+</tr>
+
+<tbody id="tabla"></tbody>
+</table>
+
+<div id="totalBox" class="verde">
+Total Actual de Deméritos: <span id="total">0</span>
+</div>
+
+<div id="alerta"></div>
+
+</div>
+
+<div style="text-align:center">
+<button onclick="generarPDF()">Guardar en PDF</button>
+</div>
+
+<script>
+
+for(let i=1;i<=8;i++){
+    document.getElementById("tabla").innerHTML += `
+    <tr>
+        <td>${i}</td>
+        <td><input type="date"></td>
+        <td><input type="checkbox" class="demerito"></td>
+        <td><input type="checkbox" class="demerito"></td>
+        <td><input type="checkbox" class="demerito"></td>
+        <td><input type="checkbox" class="demerito"></td>
+        <td><input type="checkbox" class="redencion"></td>
+        <td><input type="checkbox" class="redencion"></td>
+        <td><input type="checkbox" class="redencion"></td>
+    </tr>
+    `;
+}
+
+document.addEventListener("change", calcularTotal);
+
+function calcularTotal(){
+    let demeritos = document.querySelectorAll(".demerito:checked").length;
+    let redenciones = document.querySelectorAll(".redencion:checked").length;
+
+    let total = demeritos - redenciones;
+    if(total < 0) total = 0;
+
+    document.getElementById("total").innerText = total;
+
+    let alerta = document.getElementById("alerta");
+    let totalBox = document.getElementById("totalBox");
+
+    alerta.innerHTML = "";
+    totalBox.className = "";
+
+    if(total >= 15){
+        alerta.innerHTML = "⚠ 15 DEMÉRITOS: No promoción de grado.";
+        alerta.className = "alerta rojo";
+        totalBox.className = "rojo";
+    }
+    else if(total >= 10){
+        alerta.innerHTML = "⚠ 10 DEMÉRITOS: Suspensión de privilegios.";
+        alerta.className = "alerta naranja";
+        totalBox.className = "naranja";
+    }
+    else if(total >= 6){
+        alerta.innerHTML = "⚠ 6 DEMÉRITOS: Comunicación a la familia.";
+        alerta.className = "alerta amarillo";
+        totalBox.className = "amarillo";
+    }
+    else if(total >= 3){
+        alerta.innerHTML = "⚠ 3 DEMÉRITOS: Advertencia verbal.";
+        alerta.className = "alerta amarillo";
+        totalBox.className = "amarillo";
+    }
+    else{
+        totalBox.className = "verde";
+    }
+}
+
+async function generarPDF(){
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p','pt','a4');
+
+    await doc.html(document.querySelector("#contenidoPDF"), {
+        callback: function (doc) {
+            doc.save("Tarjeta_Demeritos.pdf");
+        },
+        margin: 20
+    });
+}
+
+</script>
+
+</body>
+</html>
+
