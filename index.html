@@ -3,26 +3,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Instrumento No. 001 - Oficial</title>
+<title>Instrumento No. 001 - Tarjeta de Deméritos</title>
 
+<!-- Librerías estables -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
 body{font-family:Arial;margin:0;background:#f4f6f9}
 header{background:#003366;color:white;text-align:center;padding:15px}
 .container{width:98%;margin:15px auto;background:white;padding:15px;border-radius:6px}
-input,select{width:100%;padding:4px;font-size:12px}
+input,select,textarea{width:100%;font-size:11px;padding:4px}
+textarea{height:40px}
 table{width:100%;border-collapse:collapse;font-size:11px;margin-top:10px}
 th,td{border:1px solid #000;padding:3px;text-align:center}
-th{background:#ddd}
-textarea{width:100%;height:40px;font-size:11px}
-.total-box{font-weight:bold;padding:8px;margin-top:8px}
-.alerta{padding:8px;margin-top:5px;font-weight:bold}
+th{background:#e6e6e6}
+button{margin:15px;padding:8px 15px;background:#003366;color:white;border:none;border-radius:4px;cursor:pointer}
+.alerta{padding:8px;margin-top:8px;font-weight:bold;text-align:center}
 .verde{background:#d4edda}
 .amarillo{background:#fff3cd}
 .naranja{background:#ffe0b2}
 .rojo{background:#f8d7da}
-button{margin-top:10px;padding:8px 15px;background:#003366;color:white;border:none}
+.total-box{font-weight:bold;padding:6px;margin-top:6px}
 </style>
 </head>
 
@@ -35,27 +37,26 @@ button{margin-top:10px;padding:8px 15px;background:#003366;color:white;border:no
 
 <div class="container" id="contenidoPDF">
 
-<!-- ENCABEZADO COMPLETO -->
 <table>
 <tr>
-<td>1. Nombre del Centro Educativo</td>
+<td>Centro Educativo</td>
+<td colspan="3"><input value="COMPLEJO EDUCATIVO CANTÓN SAN ISIDRO" readonly></td>
+<td>Código C.E.</td>
+<td><input value="70056" readonly></td>
+</tr>
+<tr>
+<td>Departamento</td><td><input value="SAN SALVADOR" readonly></td>
+<td>Municipio</td><td><input value="PANCHIMALCO" readonly></td>
+<td>Distrito</td><td><input value="06-14" readonly></td>
+</tr>
+<tr>
+<td>Nombre del Estudiante</td>
 <td colspan="3"><input></td>
-<td>2. Código C.E.</td>
+<td>NIE</td>
 <td><input></td>
 </tr>
 <tr>
-<td>3. Departamento</td><td><input></td>
-<td>4. Municipio</td><td><input></td>
-<td>5. Distrito</td><td><input></td>
-</tr>
-<tr>
-<td>6. Nombre del Estudiante</td>
-<td colspan="3"><input></td>
-<td>7. NIE</td>
-<td><input></td>
-</tr>
-<tr>
-<td>8. Sexo</td>
+<td>Sexo</td>
 <td>
 <select>
 <option></option>
@@ -63,8 +64,8 @@ button{margin-top:10px;padding:8px 15px;background:#003366;color:white;border:no
 <option>Hombre</option>
 </select>
 </td>
-<td>9. Grado/Sección</td><td><input></td>
-<td>10. Turno</td>
+<td>Grado/Sección</td><td><input></td>
+<td>Turno</td>
 <td>
 <select>
 <option></option>
@@ -76,162 +77,125 @@ button{margin-top:10px;padding:8px 15px;background:#003366;color:white;border:no
 </tr>
 </table>
 
-<!-- TABLA OFICIAL -->
-<table>
-<tr>
-<th>No.</th>
-<th>11.Fecha</th>
-<th colspan="4">12.D</th>
-<th colspan="3">
-}
-
-#totalBox{
-    margin-top:15px;
-    padding:10px;
-    font-weight:bold;
-    border-radius:6px;
-}
-
-.alerta{
-    margin-top:10px;
-    padding:10px;
-    border-radius:6px;
-    font-weight:bold;
-}
-
-.verde{background:#d4edda;color:#155724;}
-.amarillo{background:#fff3cd;color:#856404;}
-.naranja{background:#ffe0b2;color:#8a4b00;}
-.rojo{background:#f8d7da;color:#721c24;}
-</style>
-</head>
-
-<body>
-
-<header>
-<h2>Instrumento No. 001</h2>
-<h1>Tarjeta de Deméritos del Estudiante</h1>
-</header>
-
-<div class="container" id="contenidoPDF">
-
-<h3>Datos Generales</h3>
-
-<div class="grid">
-<div>
-<input placeholder="Centro Educativo">
-<input placeholder="Nombre del Estudiante">
-</div>
-<div>
-<input placeholder="Grado / Sección">
-<input placeholder="NIE">
-</div>
-</div>
-
-<h3>Registro</h3>
-
 <table>
 <tr>
 <th>No.</th>
 <th>Fecha</th>
-<th>D-A</th>
-<th>D-B</th>
-<th>D-C</th>
-<th>D-D</th>
-<th>R-A</th>
-<th>R-B</th>
-<th>R-C</th>
+<th colspan="4">Deméritos</th>
+<th colspan="3">Redención</th>
+<th colspan="2">Reconocimientos</th>
+<th>Quien registra</th>
+<th>Responsable</th>
+<th>Firma estudiante</th>
+</tr>
+
+<tr>
+<th></th><th></th>
+<th>A</th><th>B</th><th>C</th><th>D</th>
+<th>A</th><th>B</th><th>C</th>
+<th>A</th><th>B</th>
+<th></th><th></th><th></th>
 </tr>
 
 <tbody id="tabla"></tbody>
+
+<tr>
+<td colspan="14" class="total-box">
+Total Deméritos: <span id="total">0</span>
+</td>
+</tr>
 </table>
 
-<div id="totalBox" class="verde">
-Total Actual de Deméritos: <span id="total">0</span>
-</div>
+<div id="alerta" class="alerta verde">Sin sanción acumulada</div>
 
-<div id="alerta"></div>
+<p><strong>Nombre, firma y sello del Director</strong></p>
 
 </div>
 
 <div style="text-align:center">
-<button onclick="generarPDF()">Guardar en PDF</button>
+<button onclick="exportarPDF()">Guardar en PDF</button>
 </div>
 
 <script>
 
 for(let i=1;i<=8;i++){
-    document.getElementById("tabla").innerHTML += `
-    <tr>
-        <td>${i}</td>
-        <td><input type="date"></td>
-        <td><input type="checkbox" class="demerito"></td>
-        <td><input type="checkbox" class="demerito"></td>
-        <td><input type="checkbox" class="demerito"></td>
-        <td><input type="checkbox" class="demerito"></td>
-        <td><input type="checkbox" class="redencion"></td>
-        <td><input type="checkbox" class="redencion"></td>
-        <td><input type="checkbox" class="redencion"></td>
-    </tr>
-    `;
+document.getElementById("tabla").innerHTML+=`
+<tr>
+<td>${i}</td>
+<td><input type="date"></td>
+
+<td><input type="checkbox" class="dem"></td>
+<td><input type="checkbox" class="dem"></td>
+<td><input type="checkbox" class="dem"></td>
+<td><input type="checkbox" class="dem"></td>
+
+<td><input type="checkbox" class="red"></td>
+<td><input type="checkbox" class="red"></td>
+<td><input type="checkbox" class="red"></td>
+
+<td><input type="checkbox" class="rec"></td>
+<td><input type="checkbox" class="rec"></td>
+
+<td><textarea></textarea></td>
+<td><textarea></textarea></td>
+<td><textarea></textarea></td>
+</tr>`;
 }
 
-document.addEventListener("change", calcularTotal);
+document.addEventListener("change",calcular);
 
-function calcularTotal(){
-    let demeritos = document.querySelectorAll(".demerito:checked").length;
-    let redenciones = document.querySelectorAll(".redencion:checked").length;
+function calcular(){
+let dem=document.querySelectorAll(".dem:checked").length;
+let red=document.querySelectorAll(".red:checked").length;
 
-    let total = demeritos - redenciones;
-    if(total < 0) total = 0;
+let total=dem-red;
+if(total<0) total=0;
 
-    document.getElementById("total").innerText = total;
+document.getElementById("total").innerText=total;
 
-    let alerta = document.getElementById("alerta");
-    let totalBox = document.getElementById("totalBox");
+let alerta=document.getElementById("alerta");
+alerta.className="alerta";
 
-    alerta.innerHTML = "";
-    totalBox.className = "";
-
-    if(total >= 15){
-        alerta.innerHTML = "⚠ 15 DEMÉRITOS: No promoción de grado.";
-        alerta.className = "alerta rojo";
-        totalBox.className = "rojo";
-    }
-    else if(total >= 10){
-        alerta.innerHTML = "⚠ 10 DEMÉRITOS: Suspensión de privilegios.";
-        alerta.className = "alerta naranja";
-        totalBox.className = "naranja";
-    }
-    else if(total >= 6){
-        alerta.innerHTML = "⚠ 6 DEMÉRITOS: Comunicación a la familia.";
-        alerta.className = "alerta amarillo";
-        totalBox.className = "amarillo";
-    }
-    else if(total >= 3){
-        alerta.innerHTML = "⚠ 3 DEMÉRITOS: Advertencia verbal.";
-        alerta.className = "alerta amarillo";
-        totalBox.className = "amarillo";
-    }
-    else{
-        totalBox.className = "verde";
-    }
+if(total>=15){alerta.innerHTML="15 DEMÉRITOS: No promoción de grado";alerta.classList.add("rojo");}
+else if(total>=10){alerta.innerHTML="10 DEMÉRITOS: Suspensión de privilegios";alerta.classList.add("naranja");}
+else if(total>=6){alerta.innerHTML="6 DEMÉRITOS: Comunicación a la familia";alerta.classList.add("amarillo");}
+else if(total>=3){alerta.innerHTML="3 DEMÉRITOS: Advertencia verbal";alerta.classList.add("amarillo");}
+else{alerta.innerHTML="Sin sanción acumulada";alerta.classList.add("verde");}
 }
 
-async function generarPDF(){
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF('p','pt','a4');
+async function exportarPDF(){
 
-    await doc.html(document.querySelector("#contenidoPDF"), {
-        callback: function (doc) {
-            doc.save("Tarjeta_Demeritos.pdf");
-        },
-        margin: 20
-    });
+const { jsPDF } = window.jspdf;
+
+const elemento = document.getElementById("contenidoPDF");
+
+const canvas = await html2canvas(elemento,{scale:2});
+const imgData = canvas.toDataURL("image/png");
+
+const pdf = new jsPDF('p','mm','a4');
+
+const imgWidth = 190;
+const pageHeight = 297;
+const imgHeight = canvas.height * imgWidth / canvas.width;
+
+let heightLeft = imgHeight;
+let position = 10;
+
+pdf.addImage(imgData,'PNG',10,position,imgWidth,imgHeight);
+heightLeft -= pageHeight;
+
+while (heightLeft >= 0) {
+position = heightLeft - imgHeight;
+pdf.addPage();
+pdf.addImage(imgData,'PNG',10,position,imgWidth,imgHeight);
+heightLeft -= pageHeight;
+}
+
+pdf.save("Instrumento_001_Demeritos_CE_San_Isidro.pdf");
+
 }
 
 </script>
 
 </body>
 </html>
-
