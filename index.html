@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Instrumento No. 001 - Tarjeta de Deméritos</title>
 
+<!-- Librerías estables -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
@@ -16,7 +18,7 @@ textarea{height:40px}
 table{width:100%;border-collapse:collapse;font-size:11px;margin-top:10px}
 th,td{border:1px solid #000;padding:3px;text-align:center}
 th{background:#e6e6e6}
-button{margin:15px;padding:8px 15px;background:#003366;color:white;border:none;border-radius:4px}
+button{margin:15px;padding:8px 15px;background:#003366;color:white;border:none;border-radius:4px;cursor:pointer}
 .alerta{padding:8px;margin-top:8px;font-weight:bold;text-align:center}
 .verde{background:#d4edda}
 .amarillo{background:#fff3cd}
@@ -35,35 +37,26 @@ button{margin:15px;padding:8px 15px;background:#003366;color:white;border:none;b
 
 <div class="container" id="contenidoPDF">
 
-<!-- DATOS INSTITUCIONALES -->
 <table>
 <tr>
-<td>1. Nombre del Centro Educativo</td>
-<td colspan="3">
-<input value="COMPLEJO EDUCATIVO CANTÓN SAN ISIDRO" readonly>
-</td>
-<td>2. Código C.E.</td>
+<td>Centro Educativo</td>
+<td colspan="3"><input value="COMPLEJO EDUCATIVO CANTÓN SAN ISIDRO" readonly></td>
+<td>Código C.E.</td>
 <td><input value="70056" readonly></td>
 </tr>
-
 <tr>
-<td>3. Departamento</td>
-<td><input value="SAN SALVADOR" readonly></td>
-<td>4. Municipio</td>
-<td><input value="PANCHIMALCO" readonly></td>
-<td>5. Distrito</td>
-<td><input value="06-14" readonly></td>
+<td>Departamento</td><td><input value="SAN SALVADOR" readonly></td>
+<td>Municipio</td><td><input value="PANCHIMALCO" readonly></td>
+<td>Distrito</td><td><input value="06-14" readonly></td>
 </tr>
-
 <tr>
-<td>6. Nombre del Estudiante</td>
-<td colspan="3"><input placeholder="Nombre completo del estudiante"></td>
-<td>7. NIE</td>
-<td><input placeholder="Número de Identificación Estudiantil"></td>
+<td>Nombre del Estudiante</td>
+<td colspan="3"><input></td>
+<td>NIE</td>
+<td><input></td>
 </tr>
-
 <tr>
-<td>8. Sexo</td>
+<td>Sexo</td>
 <td>
 <select>
 <option></option>
@@ -71,9 +64,8 @@ button{margin:15px;padding:8px 15px;background:#003366;color:white;border:none;b
 <option>Hombre</option>
 </select>
 </td>
-<td>9. Grado/Sección</td>
-<td><input placeholder='Ej. 9° "A"'></td>
-<td>10. Turno</td>
+<td>Grado/Sección</td><td><input></td>
+<td>Turno</td>
 <td>
 <select>
 <option></option>
@@ -85,17 +77,16 @@ button{margin:15px;padding:8px 15px;background:#003366;color:white;border:none;b
 </tr>
 </table>
 
-<!-- TABLA OFICIAL -->
 <table>
 <tr>
 <th>No.</th>
-<th>11. Fecha</th>
-<th colspan="4">12. D</th>
-<th colspan="3">13. R</th>
-<th colspan="2">14. RC</th>
-<th>15. Nombre y firma quien registra</th>
-<th>16. Responsable Redención</th>
-<th>17. Firma estudiante</th>
+<th>Fecha</th>
+<th colspan="4">Deméritos</th>
+<th colspan="3">Redención</th>
+<th colspan="2">Reconocimientos</th>
+<th>Quien registra</th>
+<th>Responsable</th>
+<th>Firma estudiante</th>
 </tr>
 
 <tr>
@@ -110,28 +101,23 @@ button{margin:15px;padding:8px 15px;background:#003366;color:white;border:none;b
 
 <tr>
 <td colspan="14" class="total-box">
-18. Total Deméritos: <span id="total">0</span> |
-Reconocimientos: <span id="totalRec">0</span>
+Total Deméritos: <span id="total">0</span>
 </td>
 </tr>
-
 </table>
 
-<div id="alerta" class="alerta verde">
-Sin sanción acumulada
-</div>
+<div id="alerta" class="alerta verde">Sin sanción acumulada</div>
 
-<p><strong>Nombre, firma y sello del Director del C.E.</strong></p>
+<p><strong>Nombre, firma y sello del Director</strong></p>
 
 </div>
 
 <div style="text-align:center">
-<button onclick="generarPDF()">Guardar en PDF</button>
+<button onclick="exportarPDF()">Guardar en PDF</button>
 </div>
 
 <script>
 
-// Crear 8 filas dinámicamente
 for(let i=1;i<=8;i++){
 document.getElementById("tabla").innerHTML+=`
 <tr>
@@ -156,57 +142,57 @@ document.getElementById("tabla").innerHTML+=`
 </tr>`;
 }
 
-document.addEventListener("change",calcularTotales);
+document.addEventListener("change",calcular);
 
-function calcularTotales(){
-
+function calcular(){
 let dem=document.querySelectorAll(".dem:checked").length;
 let red=document.querySelectorAll(".red:checked").length;
-let rec=document.querySelectorAll(".rec:checked").length;
 
 let total=dem-red;
 if(total<0) total=0;
 
 document.getElementById("total").innerText=total;
-document.getElementById("totalRec").innerText=rec;
 
 let alerta=document.getElementById("alerta");
 alerta.className="alerta";
 
-if(total>=15){
-alerta.innerHTML="⚠ 15 DEMÉRITOS: No promoción de grado";
-alerta.classList.add("rojo");
-}
-else if(total>=10){
-alerta.innerHTML="⚠ 10 DEMÉRITOS: Suspensión de privilegios";
-alerta.classList.add("naranja");
-}
-else if(total>=6){
-alerta.innerHTML="⚠ 6 DEMÉRITOS: Comunicación a la familia";
-alerta.classList.add("amarillo");
-}
-else if(total>=3){
-alerta.innerHTML="⚠ 3 DEMÉRITOS: Advertencia verbal";
-alerta.classList.add("amarillo");
-}
-else{
-alerta.innerHTML="Sin sanción acumulada";
-alerta.classList.add("verde");
+if(total>=15){alerta.innerHTML="15 DEMÉRITOS: No promoción de grado";alerta.classList.add("rojo");}
+else if(total>=10){alerta.innerHTML="10 DEMÉRITOS: Suspensión de privilegios";alerta.classList.add("naranja");}
+else if(total>=6){alerta.innerHTML="6 DEMÉRITOS: Comunicación a la familia";alerta.classList.add("amarillo");}
+else if(total>=3){alerta.innerHTML="3 DEMÉRITOS: Advertencia verbal";alerta.classList.add("amarillo");}
+else{alerta.innerHTML="Sin sanción acumulada";alerta.classList.add("verde");}
 }
 
-}
+async function exportarPDF(){
 
-async function generarPDF(){
 const { jsPDF } = window.jspdf;
-const doc = new jsPDF('p','pt','a4');
 
-await doc.html(document.querySelector("#contenidoPDF"),{
-callback:function(doc){
-doc.save("Instrumento_001_Demeritos_CE_San_Isidro.pdf");
-},
-margin:20,
-autoPaging:'text'
-});
+const elemento = document.getElementById("contenidoPDF");
+
+const canvas = await html2canvas(elemento,{scale:2});
+const imgData = canvas.toDataURL("image/png");
+
+const pdf = new jsPDF('p','mm','a4');
+
+const imgWidth = 190;
+const pageHeight = 297;
+const imgHeight = canvas.height * imgWidth / canvas.width;
+
+let heightLeft = imgHeight;
+let position = 10;
+
+pdf.addImage(imgData,'PNG',10,position,imgWidth,imgHeight);
+heightLeft -= pageHeight;
+
+while (heightLeft >= 0) {
+position = heightLeft - imgHeight;
+pdf.addPage();
+pdf.addImage(imgData,'PNG',10,position,imgWidth,imgHeight);
+heightLeft -= pageHeight;
+}
+
+pdf.save("Instrumento_001_Demeritos_CE_San_Isidro.pdf");
+
 }
 
 </script>
