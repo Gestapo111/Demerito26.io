@@ -3,270 +3,600 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Instrumento No. 001</title>
+<title>Instrumento No. 001 - Tarjeta de Deméritos</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
-
-body{
-font-family:'Segoe UI',sans-serif;
-background:#eef2f7;
-margin:0;
+* {
+    box-sizing: border-box;
 }
 
-.documento{
-width:210mm;
-min-height:297mm;
-background:white;
-margin:auto;
-padding:20px;
-box-shadow:0 0 15px rgba(0,0,0,0.15);
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    margin: 0;
+    padding: 20px;
+    min-height: 100vh;
 }
 
-.encabezado{
-display:flex;
-justify-content:space-between;
-align-items:center;
-border-bottom:3px solid #003366;
-padding-bottom:10px;
+.container {
+    max-width: 1200px;
+    margin: auto;
 }
 
-.titulo{
-text-align:center;
-flex-grow:1;
+.documento {
+    width: 210mm;
+    min-height: 297mm;
+    background: white;
+    margin: auto;
+    padding: 25px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    border-radius: 8px;
 }
 
-.titulo h2{
-margin:0;
-color:#003366;
+.encabezado {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 4px solid #003366;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
 }
 
-.subtitulo{
-font-size:14px;
+.logo-placeholder {
+    width: 80px;
+    height: 80px;
+    background: #f0f0f0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: #666;
+    text-align: center;
 }
 
-.seccion{
-margin-top:15px;
+.titulo {
+    text-align: center;
+    flex-grow: 1;
 }
 
-table{
-width:100%;
-border-collapse:collapse;
-font-size:11px;
+.titulo h2 {
+    margin: 0 0 5px 0;
+    color: #003366;
+    font-size: 28px;
+    font-weight: 700;
 }
 
-th,td{
-border:1px solid #444;
-padding:4px;
-text-align:center;
+.subtitulo {
+    font-size: 15px;
+    color: #555;
+    font-weight: 500;
 }
 
-th{
-background:#003366;
-color:white;
+.seccion {
+    margin-top: 20px;
 }
 
-input,select,textarea{
-width:100%;
-border:none;
-font-size:11px;
-padding:3px;
+.seccion-titulo {
+    background: #003366;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    font-weight: 600;
+    font-size: 14px;
 }
 
-.panel{
-display:flex;
-justify-content:space-between;
-margin-top:10px;
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+    margin-bottom: 15px;
 }
 
-.card{
-padding:10px;
-border-radius:8px;
-font-weight:bold;
-color:white;
+th, td {
+    border: 1px solid #666;
+    padding: 6px;
+    text-align: center;
 }
 
-.total{background:#003366;}
-.alerta{background:#28a745;}
-
-button{
-margin:15px;
-padding:10px 20px;
-background:#003366;
-color:white;
-border:none;
-border-radius:6px;
-cursor:pointer;
+th {
+    background: #003366;
+    color: white;
+    font-weight: 600;
 }
 
+td.label {
+    background: #f8f9fa;
+    font-weight: 600;
+    text-align: left;
+    padding-left: 10px;
+}
+
+input[type="text"],
+input[type="date"],
+select,
+textarea {
+    width: 100%;
+    border: none;
+    font-size: 11px;
+    padding: 4px;
+    background: transparent;
+    font-family: inherit;
+}
+
+input[type="text"]:focus,
+select:focus,
+textarea:focus {
+    outline: 2px solid #667eea;
+    background: #f0f4ff;
+}
+
+input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #003366;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 40px;
+}
+
+.panel {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.card {
+    flex: 1;
+    padding: 15px;
+    border-radius: 10px;
+    font-weight: bold;
+    color: white;
+    text-align: center;
+    min-width: 200px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.total {
+    background: linear-gradient(135deg, #003366 0%, #004080 100%);
+    font-size: 18px;
+}
+
+.alerta {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    font-size: 16px;
+}
+
+.firma-section {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 2px solid #ddd;
+}
+
+.firma-box {
+    display: inline-block;
+    border-top: 2px solid #333;
+    padding-top: 8px;
+    min-width: 300px;
+    text-align: center;
+}
+
+.controles {
+    text-align: center;
+    margin-top: 20px;
+    padding: 20px;
+}
+
+button {
+    margin: 10px;
+    padding: 12px 30px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    transition: all 0.3s;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.6);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+.btn-limpiar {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+}
+
+.btn-limpiar:hover {
+    box-shadow: 0 6px 16px rgba(220, 53, 69, 0.6);
+}
+
+.leyenda {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 15px;
+    font-size: 11px;
+}
+
+.leyenda h4 {
+    margin: 0 0 10px 0;
+    color: #003366;
+}
+
+.leyenda-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+}
+
+.leyenda-item {
+    display: flex;
+    align-items: center;
+}
+
+.leyenda-item strong {
+    color: #003366;
+    margin-right: 5px;
+}
+
+@media print {
+    body {
+        background: white;
+        padding: 0;
+    }
+    
+    .controles {
+        display: none;
+    }
+    
+    .documento {
+        box-shadow: none;
+        margin: 0;
+        border-radius: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .documento {
+        width: 100%;
+        padding: 15px;
+    }
+    
+    table {
+        font-size: 9px;
+    }
+    
+    .panel {
+        flex-direction: column;
+    }
+}
 </style>
 </head>
 
 <body>
 
-<div id="contenidoPDF" class="documento">
+<div class="container">
+    <div id="contenidoPDF" class="documento">
 
-<div class="encabezado">
-<div></div>
+        <div class="encabezado">
+            <div class="logo-placeholder">Logo</div>
 
-<div class="titulo">
-<h2>Instrumento No. 001</h2>
-<div class="subtitulo">Tarjeta de Deméritos del Estudiante</div>
-</div>
+            <div class="titulo">
+                <h2>Instrumento No. 001</h2>
+                <div class="subtitulo">Tarjeta de Deméritos del Estudiante</div>
+            </div>
 
-<div></div>
-</div>
+            <div class="logo-placeholder">Escudo</div>
+        </div>
 
-<!-- DATOS -->
-<div class="seccion">
-<table>
-<tr>
-<td>Centro Educativo</td>
-<td colspan="3"><input value="COMPLEJO EDUCATIVO CANTÓN SAN ISIDRO" readonly></td>
-<td>Código</td>
-<td><input value="70056" readonly></td>
-</tr>
+        <!-- DATOS DEL CENTRO EDUCATIVO -->
+        <div class="seccion">
+            <div class="seccion-titulo">📋 Información del Centro Educativo</div>
+            <table>
+                <tr>
+                    <td class="label">Centro Educativo</td>
+                    <td colspan="3"><input type="text" value="COMPLEJO EDUCATIVO CANTÓN SAN ISIDRO" readonly></td>
+                    <td class="label">Código</td>
+                    <td><input type="text" value="70056" readonly></td>
+                </tr>
+                <tr>
+                    <td class="label">Departamento</td>
+                    <td><input type="text" value="SAN SALVADOR" readonly></td>
+                    <td class="label">Municipio</td>
+                    <td><input type="text" value="PANCHIMALCO" readonly></td>
+                    <td class="label">Distrito</td>
+                    <td><input type="text" value="06-14" readonly></td>
+                </tr>
+            </table>
+        </div>
 
-<tr>
-<td>Departamento</td>
-<td><input value="SAN SALVADOR" readonly></td>
-<td>Municipio</td>
-<td><input value="PANCHIMALCO" readonly></td>
-<td>Distrito</td>
-<td><input value="06-14" readonly></td>
-</tr>
+        <!-- DATOS DEL ESTUDIANTE -->
+        <div class="seccion">
+            <div class="seccion-titulo">👤 Información del Estudiante</div>
+            <table>
+                <tr>
+                    <td class="label">Estudiante</td>
+                    <td colspan="3"><input type="text" id="nombreEstudiante" placeholder="Ingrese nombre completo"></td>
+                    <td class="label">NIE</td>
+                    <td><input type="text" id="nie" placeholder="Número"></td>
+                </tr>
+                <tr>
+                    <td class="label">Sexo</td>
+                    <td>
+                        <select id="sexo">
+                            <option value="">Seleccione</option>
+                            <option value="Mujer">Mujer</option>
+                            <option value="Hombre">Hombre</option>
+                        </select>
+                    </td>
+                    <td class="label">Grado/Sección</td>
+                    <td><input type="text" id="grado" placeholder="Ej: 9°A"></td>
+                    <td class="label">Turno</td>
+                    <td>
+                        <select id="turno">
+                            <option value="">Seleccione</option>
+                            <option value="Matutino">Matutino</option>
+                            <option value="Vespertino">Vespertino</option>
+                            <option value="Nocturno">Nocturno</option>
+                        </select>
+                    </td>
+                </tr>
+            </table>
+        </div>
 
-<tr>
-<td>Estudiante</td>
-<td colspan="3"><input></td>
-<td>NIE</td>
-<td><input></td>
-</tr>
+        <!-- LEYENDA -->
+        <div class="leyenda">
+            <h4>📌 Leyenda</h4>
+            <div class="leyenda-grid">
+                <div class="leyenda-item"><strong>D:</strong> Deméritos (A, B, C, D)</div>
+                <div class="leyenda-item"><strong>R:</strong> Redención (A, B, C)</div>
+                <div class="leyenda-item"><strong>RC:</strong> Reconocimiento (A, B)</div>
+            </div>
+        </div>
 
-<tr>
-<td>Sexo</td>
-<td>
-<select><option></option><option>Mujer</option><option>Hombre</option></select>
-</td>
-<td>Grado/Sección</td>
-<td><input></td>
-<td>Turno</td>
-<td>
-<select><option></option><option>Matutino</option><option>Vespertino</option><option>Nocturno</option></select>
-</td>
-</tr>
-</table>
-</div>
+        <!-- TABLA DE REGISTRO -->
+        <div class="seccion">
+            <div class="seccion-titulo">📊 Registro de Deméritos y Reconocimientos</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th rowspan="2">No.</th>
+                        <th rowspan="2">Fecha</th>
+                        <th colspan="4">Deméritos (D)</th>
+                        <th colspan="3">Redención (R)</th>
+                        <th colspan="2">Reconocimiento (RC)</th>
+                        <th rowspan="2">Docente<br>Responsable</th>
+                        <th rowspan="2">Padre/Madre<br>o Responsable</th>
+                        <th rowspan="2">Firma<br>Estudiante</th>
+                    </tr>
+                    <tr>
+                        <th>A</th><th>B</th><th>C</th><th>D</th>
+                        <th>A</th><th>B</th><th>C</th>
+                        <th>A</th><th>B</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla"></tbody>
+            </table>
+        </div>
 
-<!-- TABLA -->
-<div class="seccion">
-<table>
+        <!-- PANEL DE RESUMEN -->
+        <div class="panel">
+            <div class="card total">
+                📊 Total Deméritos<br>
+                <span id="total" style="font-size: 32px;">0</span>
+            </div>
 
-<tr>
-<th>No.</th>
-<th>Fecha</th>
-<th colspan="4">D</th>
-<th colspan="3">R</th>
-<th colspan="2">RC</th>
-<th>Docente</th>
-<th>Responsable</th>
-<th>Estudiante</th>
-</tr>
+            <div class="card alerta" id="alerta">
+                ✅ Sin sanción acumulada
+            </div>
+        </div>
 
-<tr>
-<th></th><th></th>
-<th>A</th><th>B</th><th>C</th><th>D</th>
-<th>A</th><th>B</th><th>C</th>
-<th>A</th><th>B</th>
-<th></th><th></th><th></th>
-</tr>
+        <!-- FIRMA -->
+        <div class="firma-section">
+            <div class="firma-box">
+                <strong>Nombre, firma y sello del Director(a) del C.E.</strong>
+            </div>
+        </div>
 
-<tbody id="tabla"></tbody>
+    </div>
 
-</table>
-</div>
-
-<!-- PANEL -->
-<div class="panel">
-<div class="card total">
-Total Deméritos: <span id="total">0</span>
-</div>
-
-<div class="card alerta" id="alerta">
-Sin sanción acumulada
-</div>
-</div>
-
-<p><strong>Nombre, firma y sello del Director del C.E.</strong></p>
-
-</div>
-
-<div style="text-align:center">
-<button onclick="exportarPDF()">Guardar en PDF</button>
+    <!-- CONTROLES -->
+    <div class="controles">
+        <button onclick="exportarPDF()">💾 Guardar en PDF</button>
+        <button onclick="imprimirDocumento()">🖨️ Imprimir</button>
+        <button class="btn-limpiar" onclick="limpiarFormulario()">🗑️ Limpiar Formulario</button>
+    </div>
 </div>
 
 <script>
 
-for(let i=1;i<=8;i++){
-tabla.innerHTML+=`
-<tr>
-<td>${i}</td>
-<td><input type="date"></td>
-
-<td><input type="checkbox" class="dem"></td>
-<td><input type="checkbox" class="dem"></td>
-<td><input type="checkbox" class="dem"></td>
-<td><input type="checkbox" class="dem"></td>
-
-<td><input type="checkbox" class="red"></td>
-<td><input type="checkbox" class="red"></td>
-<td><input type="checkbox" class="red"></td>
-
-<td><input type="checkbox" class="rec"></td>
-<td><input type="checkbox" class="rec"></td>
-
-<td><textarea></textarea></td>
-<td><textarea></textarea></td>
-<td><textarea></textarea></td>
-</tr>`;
+// Generar filas de la tabla
+function generarTabla() {
+    const tabla = document.getElementById('tabla');
+    tabla.innerHTML = '';
+    
+    for(let i = 1; i <= 12; i++) {
+        tabla.innerHTML += `
+        <tr>
+            <td><strong>${i}</strong></td>
+            <td><input type="date" class="fecha-input"></td>
+            
+            <td><input type="checkbox" class="dem" data-tipo="demérito"></td>
+            <td><input type="checkbox" class="dem" data-tipo="demérito"></td>
+            <td><input type="checkbox" class="dem" data-tipo="demérito"></td>
+            <td><input type="checkbox" class="dem" data-tipo="demérito"></td>
+            
+            <td><input type="checkbox" class="red" data-tipo="redención"></td>
+            <td><input type="checkbox" class="red" data-tipo="redención"></td>
+            <td><input type="checkbox" class="red" data-tipo="redención"></td>
+            
+            <td><input type="checkbox" class="rec" data-tipo="reconocimiento"></td>
+            <td><input type="checkbox" class="rec" data-tipo="reconocimiento"></td>
+            
+            <td><textarea placeholder="Nombre del docente"></textarea></td>
+            <td><textarea placeholder="Firma del responsable"></textarea></td>
+            <td><textarea placeholder="Firma del estudiante"></textarea></td>
+        </tr>`;
+    }
 }
 
-document.addEventListener("change",()=>{
+// Calcular deméritos y actualizar UI
+function calcularDemeritos() {
+    const dem = document.querySelectorAll(".dem:checked").length;
+    const red = document.querySelectorAll(".red:checked").length;
+    
+    let total = dem - red;
+    if(total < 0) total = 0;
+    
+    document.getElementById("total").innerText = total;
+    
+    const alerta = document.getElementById("alerta");
+    
+    // Actualizar mensaje según deméritos
+    if(total >= 15) {
+        alerta.innerHTML = "🚫 No promoción de grado";
+        alerta.style.background = "linear-gradient(135deg, #dc3545 0%, #c82333 100%)";
+    } else if(total >= 10) {
+        alerta.innerHTML = "⚠️ Suspensión de privilegios";
+        alerta.style.background = "linear-gradient(135deg, #fd7e14 0%, #e8590c 100%)";
+    } else if(total >= 6) {
+        alerta.innerHTML = "📞 Comunicación a la familia";
+        alerta.style.background = "linear-gradient(135deg, #ffc107 0%, #e0a800 100%)";
+    } else if(total >= 3) {
+        alerta.innerHTML = "⚡ Advertencia verbal";
+        alerta.style.background = "linear-gradient(135deg, #ffc107 0%, #e0a800 100%)";
+    } else {
+        alerta.innerHTML = "✅ Sin sanción acumulada";
+        alerta.style.background = "linear-gradient(135deg, #28a745 0%, #20c997 100%)";
+    }
+}
 
-let dem=document.querySelectorAll(".dem:checked").length;
-let red=document.querySelectorAll(".red:checked").length;
+// Exportar a PDF
+async function exportarPDF() {
+    const boton = event.target;
+    boton.disabled = true;
+    boton.innerHTML = "⏳ Generando PDF...";
+    
+    try {
+        const canvas = await html2canvas(document.getElementById("contenidoPDF"), {
+            scale: 2,
+            useCORS: true,
+            logging: false
+        });
+        
+        const imgData = canvas.toDataURL("image/png");
+        const {jsPDF} = window.jspdf;
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        
+        const imgWidth = 190;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        
+        pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
+        
+        const nombreEstudiante = document.getElementById('nombreEstudiante').value || 'Estudiante';
+        const nombreArchivo = `Instrumento_001_${nombreEstudiante.replace(/\s+/g, '_')}.pdf`;
+        
+        pdf.save(nombreArchivo);
+        
+    } catch (error) {
+        console.error('Error al generar PDF:', error);
+        alert('Ocurrió un error al generar el PDF. Por favor, intente nuevamente.');
+    } finally {
+        boton.disabled = false;
+        boton.innerHTML = "💾 Guardar en PDF";
+    }
+}
 
-let total=dem-red;
-if(total<0) total=0;
+// Imprimir documento
+function imprimirDocumento() {
+    window.print();
+}
 
-totalSpan=total;
-document.getElementById("total").innerText=total;
+// Limpiar formulario
+function limpiarFormulario() {
+    if(confirm('¿Está seguro de que desea limpiar todo el formulario?')) {
+        // Limpiar datos del estudiante
+        document.getElementById('nombreEstudiante').value = '';
+        document.getElementById('nie').value = '';
+        document.getElementById('sexo').value = '';
+        document.getElementById('grado').value = '';
+        document.getElementById('turno').value = '';
+        
+        // Limpiar tabla
+        document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+        document.querySelectorAll('input[type="date"]').forEach(input => input.value = '');
+        document.querySelectorAll('textarea').forEach(ta => ta.value = '');
+        
+        calcularDemeritos();
+    }
+}
 
-let alerta=document.getElementById("alerta");
+// Guardar en localStorage
+function guardarDatos() {
+    const datos = {
+        nombreEstudiante: document.getElementById('nombreEstudiante').value,
+        nie: document.getElementById('nie').value,
+        sexo: document.getElementById('sexo').value,
+        grado: document.getElementById('grado').value,
+        turno: document.getElementById('turno').value
+    };
+    
+    localStorage.setItem('datosEstudiante', JSON.stringify(datos));
+}
 
-if(total>=15){alerta.innerHTML="No promoción de grado";alerta.style.background="#dc3545";}
-else if(total>=10){alerta.innerHTML="Suspensión de privilegios";alerta.style.background="#fd7e14";}
-else if(total>=6){alerta.innerHTML="Comunicación a la familia";alerta.style.background="#ffc107";}
-else if(total>=3){alerta.innerHTML="Advertencia verbal";alerta.style.background="#ffc107";}
-else{alerta.innerHTML="Sin sanción acumulada";alerta.style.background="#28a745";}
+// Cargar desde localStorage
+function cargarDatos() {
+    const datos = localStorage.getItem('datosEstudiante');
+    if(datos) {
+        const parsed = JSON.parse(datos);
+        document.getElementById('nombreEstudiante').value = parsed.nombreEstudiante || '';
+        document.getElementById('nie').value = parsed.nie || '';
+        document.getElementById('sexo').value = parsed.sexo || '';
+        document.getElementById('grado').value = parsed.grado || '';
+        document.getElementById('turno').value = parsed.turno || '';
+    }
+}
 
+// Inicializar
+document.addEventListener('DOMContentLoaded', function() {
+    generarTabla();
+    cargarDatos();
+    
+    // Event listener para cálculo automático
+    document.addEventListener("change", function(e) {
+        if(e.target.matches('.dem, .red, .rec')) {
+            calcularDemeritos();
+        }
+        
+        // Guardar datos al cambiar
+        if(e.target.matches('#nombreEstudiante, #nie, #sexo, #grado, #turno')) {
+            guardarDatos();
+        }
+    });
 });
-
-async function exportarPDF(){
-
-const canvas=await html2canvas(document.getElementById("contenidoPDF"),{scale:2});
-const img=canvas.toDataURL("image/png");
-
-const {jsPDF}=window.jspdf;
-const pdf=new jsPDF('p','mm','a4');
-
-pdf.addImage(img,'PNG',10,10,190,0);
-pdf.save("Instrumento_001.pdf");
-
-}
 
 </script>
 
