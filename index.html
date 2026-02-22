@@ -3,602 +3,1197 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Instrumento No. 001 - Tarjeta de Deméritos</title>
+<title>Instrumento No. 001 — Tarjeta de Deméritos</title>
 
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
-* {
-    box-sizing: border-box;
+:root {
+  --navy:    #0d1f3c;
+  --navy2:   #162d52;
+  --gold:    #c8a84b;
+  --gold-lt: #e8c96a;
+  --cream:   #f9f6f0;
+  --red:     #c0392b;
+  --orange:  #d35400;
+  --yellow:  #d4ac0d;
+  --green:   #1e8449;
+  --muted:   #8a99b0;
+  --border:  #dce3ed;
+  --radius:  6px;
+  --shadow:  0 2px 16px rgba(13,31,60,.12);
 }
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    margin: 0;
-    padding: 20px;
-    min-height: 100vh;
+  font-family: 'DM Sans', sans-serif;
+  background: var(--navy);
+  background-image:
+    radial-gradient(ellipse at 20% 0%, #1e3a6e55 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 100%, #c8a84b22 0%, transparent 60%);
+  min-height: 100vh;
+  padding: 24px 16px 40px;
+  color: #222;
 }
 
-.container {
-    max-width: 1200px;
-    margin: auto;
+/* ── TOOLBAR ─────────────────────────── */
+.toolbar {
+  max-width: 900px;
+  margin: 0 auto 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
+.toolbar h1 {
+  font-family: 'DM Serif Display', serif;
+  color: var(--gold-lt);
+  font-size: 20px;
+  flex: 1;
+  letter-spacing: .02em;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 18px;
+  border: none;
+  border-radius: 50px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform .15s, box-shadow .15s, opacity .15s;
+  white-space: nowrap;
+}
+.btn:hover  { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,0,0,.25); }
+.btn:active { transform: translateY(0); }
+.btn:disabled { opacity: .55; pointer-events: none; }
+
+.btn-pdf    { background: var(--gold); color: var(--navy); }
+.btn-print  { background: #2c3e50; color: #fff; }
+.btn-add    { background: var(--green); color: #fff; }
+.btn-clear  { background: var(--red); color: #fff; }
+
+/* ── DOCUMENTO ───────────────────────── */
 .documento {
-    width: 210mm;
-    min-height: 297mm;
-    background: white;
-    margin: auto;
-    padding: 25px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-    border-radius: 8px;
+  max-width: 900px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.35);
+  overflow: hidden;
 }
 
-.encabezado {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 4px solid #003366;
-    padding-bottom: 15px;
-    margin-bottom: 20px;
+/* ── ENCABEZADO ──────────────────────── */
+.header {
+  background: var(--navy);
+  padding: 24px 32px;
+  display: grid;
+  grid-template-columns: 72px 1fr 72px;
+  align-items: center;
+  gap: 16px;
+  border-bottom: 4px solid var(--gold);
 }
 
-.logo-placeholder {
-    width: 80px;
-    height: 80px;
-    background: #f0f0f0;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    color: #666;
-    text-align: center;
+.logo-circle {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.08);
+  border: 2px solid var(--gold);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; color: var(--gold); text-align: center;
+  font-weight: 600;
 }
 
-.titulo {
-    text-align: center;
-    flex-grow: 1;
+.header-center { text-align: center; }
+
+.header-center h2 {
+  font-family: 'DM Serif Display', serif;
+  color: #fff;
+  font-size: 26px;
+  letter-spacing: .03em;
+  line-height: 1.2;
 }
 
-.titulo h2 {
-    margin: 0 0 5px 0;
-    color: #003366;
-    font-size: 28px;
-    font-weight: 700;
+.header-center .sub {
+  color: var(--gold-lt);
+  font-size: 13px;
+  font-weight: 500;
+  margin-top: 4px;
+  letter-spacing: .05em;
+  text-transform: uppercase;
 }
 
-.subtitulo {
-    font-size: 15px;
-    color: #555;
-    font-weight: 500;
+/* ── BODY CONTENIDO ──────────────────── */
+.doc-body { padding: 28px 32px; }
+
+/* ── SECCIONES ───────────────────────── */
+.section { margin-bottom: 22px; }
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--navy);
+  color: #fff;
+  padding: 7px 14px;
+  border-radius: var(--radius);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
 }
 
-.seccion {
-    margin-top: 20px;
+.section-title span { font-size: 15px; }
+
+/* ── GRID INFO ───────────────────────── */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
 }
 
-.seccion-titulo {
-    background: #003366;
-    color: white;
-    padding: 8px 12px;
-    border-radius: 4px;
-    margin-bottom: 10px;
-    font-weight: 600;
-    font-size: 14px;
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
 }
+
+.field.wide { grid-column: span 2; }
+
+.field label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted);
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+
+.field input,
+.field select {
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 7px 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: var(--navy);
+  background: var(--cream);
+  transition: border-color .15s, background .15s;
+  width: 100%;
+}
+
+.field input:focus,
+.field select:focus {
+  outline: none;
+  border-color: var(--gold);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(200,168,75,.15);
+}
+
+.field input[readonly] {
+  background: #f0f2f5;
+  color: #555;
+  cursor: default;
+}
+
+/* ── LEYENDA ─────────────────────────── */
+.legend {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  background: #f4f7fb;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 16px;
+  font-size: 11.5px;
+  margin-bottom: 22px;
+}
+
+.legend strong { color: var(--navy); margin-right: 4px; }
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: 50px;
+  font-size: 11px;
+  font-weight: 700;
+}
+.badge-dem { background: #fce8e6; color: var(--red); }
+.badge-red { background: #e8f4fd; color: #1a73b9; }
+.badge-rec { background: #e6f9ed; color: var(--green); }
+
+/* ── TABLA ───────────────────────────── */
+.table-wrap { overflow-x: auto; }
 
 table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 11px;
-    margin-bottom: 15px;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
 }
 
-th, td {
-    border: 1px solid #666;
-    padding: 6px;
-    text-align: center;
+thead tr:first-child th {
+  background: var(--navy2);
+  color: #fff;
+  padding: 8px 6px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  font-size: 10.5px;
 }
 
-th {
-    background: #003366;
-    color: white;
-    font-weight: 600;
+thead tr:nth-child(2) th { background: #e8ecf5; color: var(--navy); font-weight: 700; padding: 6px 4px; }
+
+/* color-coded sub-headers */
+thead tr:nth-child(2) th.th-dem { background: #fce8e6; color: var(--red); }
+thead tr:nth-child(2) th.th-red { background: #e0eefc; color: #1a73b9; }
+thead tr:nth-child(2) th.th-rec { background: #e2f5e9; color: var(--green); }
+
+tbody tr { transition: background .1s; }
+tbody tr:nth-child(even) { background: #f9fafc; }
+tbody tr:hover { background: #f0f5ff; }
+
+td {
+  border: 1px solid #dce3ed;
+  padding: 4px 4px;
+  vertical-align: middle;
+  text-align: center;
 }
 
-td.label {
-    background: #f8f9fa;
-    font-weight: 600;
-    text-align: left;
-    padding-left: 10px;
+td.num { font-weight: 700; color: var(--muted); width: 28px; }
+
+td input[type="date"] {
+  border: 1.5px solid var(--border);
+  border-radius: 4px;
+  padding: 3px 4px;
+  font-size: 10.5px;
+  font-family: inherit;
+  background: var(--cream);
+  color: var(--navy);
+  width: 115px;
+  transition: border-color .15s;
+}
+td input[type="date"]:focus { outline: none; border-color: var(--gold); }
+
+/* checkbox styling */
+td input[type="checkbox"] {
+  width: 16px; height: 16px;
+  accent-color: var(--navy);
+  cursor: pointer;
+}
+td.check-dem input[type="checkbox"] { accent-color: var(--red); }
+td.check-red input[type="checkbox"] { accent-color: #1a73b9; }
+td.check-rec input[type="checkbox"] { accent-color: var(--green); }
+
+td textarea,
+td input[type="text"].inline {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 3px 5px;
+  font-size: 10.5px;
+  font-family: inherit;
+  background: transparent;
+  resize: none;
+  width: 100%;
+  min-height: 32px;
+  transition: border-color .15s, background .15s;
+}
+td textarea:focus,
+td input[type="text"].inline:focus {
+  outline: none;
+  border-color: var(--gold);
+  background: #fffdf5;
 }
 
-input[type="text"],
-input[type="date"],
-select,
-textarea {
-    width: 100%;
-    border: none;
-    font-size: 11px;
-    padding: 4px;
-    background: transparent;
-    font-family: inherit;
+/* descripción falta — wider */
+td.desc textarea { min-height: 36px; width: 130px; }
+
+/* delete row */
+td.del-cell button {
+  background: none;
+  border: none;
+  color: #ccc;
+  font-size: 15px;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: color .15s, background .15s;
+  line-height: 1;
+}
+td.del-cell button:hover { color: var(--red); background: #fce8e6; }
+
+/* ── RESUMEN ─────────────────────────── */
+.summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px;
+  margin: 22px 0;
 }
 
-input[type="text"]:focus,
-select:focus,
-textarea:focus {
-    outline: 2px solid #667eea;
-    background: #f0f4ff;
+.stat-card {
+  border-radius: 10px;
+  padding: 16px 18px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  transition: transform .2s;
+}
+.stat-card:hover { transform: translateY(-2px); }
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: .07;
+  background: repeating-linear-gradient(45deg, #fff 0px, #fff 2px, transparent 2px, transparent 8px);
 }
 
-input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
-    accent-color: #003366;
+.stat-card .val {
+  font-family: 'DM Serif Display', serif;
+  font-size: 42px;
+  line-height: 1;
+  font-weight: 400;
 }
 
-textarea {
-    resize: vertical;
-    min-height: 40px;
+.stat-card .lbl {
+  font-size: 11.5px;
+  font-weight: 600;
+  margin-top: 4px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  opacity: .85;
 }
 
-.panel {
-    display: flex;
-    justify-content: space-between;
-    gap: 15px;
-    margin-top: 20px;
-    flex-wrap: wrap;
+.stat-dem  { background: #fce8e6; color: var(--red); }
+.stat-red  { background: #e0eefc; color: #1a73b9; }
+.stat-net  { background: var(--navy); color: #fff; }
+.stat-rec  { background: #e2f5e9; color: var(--green); }
+
+/* ── SANCTION BADGE ──────────────────── */
+.sanction {
+  border-radius: 10px;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 22px;
+  font-weight: 600;
+  font-size: 14px;
+  transition: background .4s, color .4s;
+}
+.sanction-icon { font-size: 26px; flex-shrink: 0; }
+.sanction-text { line-height: 1.4; }
+.sanction-text small { display: block; font-size: 11px; font-weight: 400; opacity: .75; margin-top: 2px; }
+
+.s-none   { background: #e6f9ed; color: var(--green); }
+.s-warn   { background: #fef9e7; color: #b7950b; }
+.s-comms  { background: #fef2e0; color: var(--orange); }
+.s-susp   { background: #fce8e6; color: var(--red); }
+.s-noprom { background: var(--red); color: #fff; }
+
+/* ── PROGRESO ────────────────────────── */
+.progress-wrap {
+  margin: 0 0 22px;
+}
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+.progress-bar-bg {
+  background: #e8ecf5;
+  border-radius: 50px;
+  height: 10px;
+  overflow: hidden;
+}
+.progress-bar {
+  height: 100%;
+  border-radius: 50px;
+  transition: width .4s cubic-bezier(.4,0,.2,1), background .4s;
+  min-width: 0;
 }
 
-.card {
-    flex: 1;
-    padding: 15px;
-    border-radius: 10px;
-    font-weight: bold;
-    color: white;
-    text-align: center;
-    min-width: 200px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-    transition: transform 0.2s;
-}
-
-.card:hover {
-    transform: translateY(-2px);
-}
-
-.total {
-    background: linear-gradient(135deg, #003366 0%, #004080 100%);
-    font-size: 18px;
-}
-
-.alerta {
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-    font-size: 16px;
-}
-
+/* ── FIRMA ───────────────────────────── */
 .firma-section {
-    margin-top: 40px;
-    padding-top: 20px;
-    border-top: 2px solid #ddd;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1.5px solid var(--border);
+  display: flex;
+  justify-content: center;
 }
-
 .firma-box {
-    display: inline-block;
-    border-top: 2px solid #333;
-    padding-top: 8px;
-    min-width: 300px;
-    text-align: center;
+  text-align: center;
+  min-width: 280px;
+}
+.firma-line {
+  border-top: 2px solid var(--navy);
+  padding-top: 8px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--navy);
 }
 
-.controles {
-    text-align: center;
-    margin-top: 20px;
-    padding: 20px;
-}
-
-button {
-    margin: 10px;
-    padding: 12px 30px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 15px;
-    font-weight: 600;
-    transition: all 0.3s;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-}
-
-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.6);
-}
-
-button:active {
-    transform: translateY(0);
-}
-
-.btn-limpiar {
-    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
-}
-
-.btn-limpiar:hover {
-    box-shadow: 0 6px 16px rgba(220, 53, 69, 0.6);
-}
-
-.leyenda {
-    background: #f8f9fa;
-    padding: 15px;
-    border-radius: 8px;
-    margin-top: 15px;
-    font-size: 11px;
-}
-
-.leyenda h4 {
-    margin: 0 0 10px 0;
-    color: #003366;
-}
-
-.leyenda-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 10px;
-}
-
-.leyenda-item {
-    display: flex;
-    align-items: center;
-}
-
-.leyenda-item strong {
-    color: #003366;
-    margin-right: 5px;
-}
-
+/* ── PRINT ───────────────────────────── */
 @media print {
-    body {
-        background: white;
-        padding: 0;
-    }
-    
-    .controles {
-        display: none;
-    }
-    
-    .documento {
-        box-shadow: none;
-        margin: 0;
-        border-radius: 0;
-    }
+  body { background: #fff; padding: 0; }
+  .toolbar { display: none; }
+  .documento { max-width: 100%; box-shadow: none; border-radius: 0; }
+  .btn { display: none; }
+  .del-cell { display: none; }
+  td input[type="date"] { width: auto; }
 }
 
-@media (max-width: 768px) {
-    .documento {
-        width: 100%;
-        padding: 15px;
-    }
-    
-    table {
-        font-size: 9px;
-    }
-    
-    .panel {
-        flex-direction: column;
-    }
+@media (max-width: 600px) {
+  .doc-body { padding: 16px; }
+  .header   { padding: 16px; }
+  .field.wide { grid-column: span 1; }
 }
+
+/* ── MODAL ───────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10,20,40,.65);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s;
+}
+.modal-overlay.open {
+  opacity: 1;
+  pointer-events: all;
+}
+.modal {
+  background: #fff;
+  border-radius: 14px;
+  width: 520px;
+  max-width: 95vw;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 24px 64px rgba(0,0,0,.4);
+  transform: translateY(18px) scale(.97);
+  transition: transform .22s cubic-bezier(.34,1.56,.64,1);
+  overflow: hidden;
+}
+.modal-overlay.open .modal {
+  transform: translateY(0) scale(1);
+}
+.modal-header {
+  background: var(--navy);
+  padding: 18px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 3px solid var(--gold);
+  flex-shrink: 0;
+}
+.modal-header h3 {
+  font-family: 'DM Serif Display', serif;
+  color: #fff;
+  font-size: 18px;
+  letter-spacing: .02em;
+}
+.modal-header p {
+  color: var(--gold-lt);
+  font-size: 11.5px;
+  margin-top: 2px;
+}
+.modal-close {
+  background: rgba(255,255,255,.12);
+  border: none;
+  color: #fff;
+  font-size: 18px;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s;
+  flex-shrink: 0;
+}
+.modal-close:hover { background: rgba(255,255,255,.25); }
+
+.modal-search-wrap {
+  padding: 14px 18px 10px;
+  flex-shrink: 0;
+  border-bottom: 1.5px solid var(--border);
+}
+.modal-search {
+  width: 100%;
+  border: 1.5px solid var(--border);
+  border-radius: 50px;
+  padding: 9px 16px 9px 38px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: var(--navy);
+  background: var(--cream) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238a99b0' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='M21 21l-4.35-4.35'/%3E%3C/svg%3E") no-repeat 13px center;
+  transition: border-color .15s, box-shadow .15s;
+}
+.modal-search:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(200,168,75,.15);
+  background-color: #fff;
+}
+
+.modal-list {
+  overflow-y: auto;
+  flex: 1;
+  padding: 8px 10px;
+}
+
+.modal-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background .12s;
+  border: 1.5px solid transparent;
+}
+.modal-item:hover {
+  background: #f0f5ff;
+  border-color: #c8d8f8;
+}
+.modal-item.selected {
+  background: #e8f0fe;
+  border-color: var(--gold);
+}
+.modal-num {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: var(--navy);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.modal-info { flex: 1; }
+.modal-info .est-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--navy);
+  letter-spacing: .01em;
+}
+.modal-info .est-nie {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 1px;
+}
+.modal-no-results {
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+  padding: 30px 0;
+}
+
+/* botón selector en el campo nombre */
+.input-with-btn {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.input-with-btn input { flex: 1; }
+.btn-select {
+  flex-shrink: 0;
+  padding: 7px 12px;
+  background: var(--navy);
+  color: var(--gold-lt);
+  border: none;
+  border-radius: var(--radius);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .15s;
+  letter-spacing: .03em;
+}
+.btn-select:hover { background: var(--navy2); }
 </style>
 </head>
 
 <body>
 
-<div class="container">
-    <div id="contenidoPDF" class="documento">
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <h1>Tarjeta de Deméritos</h1>
+  <button class="btn btn-add" onclick="agregarFila()"><span>➕</span> Agregar fila</button>
+  <button class="btn btn-pdf" id="btnPDF" onclick="exportarPDF()"><span>💾</span> Guardar PDF</button>
+  <button class="btn btn-print" onclick="window.print()"><span>🖨️</span> Imprimir</button>
+  <button class="btn btn-clear" onclick="limpiarFormulario()"><span>🗑️</span> Limpiar</button>
+</div>
 
-        <div class="encabezado">
-            <div class="logo-placeholder">Logo</div>
+<!-- DOCUMENTO -->
+<div class="documento" id="contenidoPDF">
 
-            <div class="titulo">
-                <h2>Instrumento No. 001</h2>
-                <div class="subtitulo">Tarjeta de Deméritos del Estudiante</div>
-            </div>
+  <!-- ENCABEZADO -->
+  <div class="header">
+    <div class="logo-circle">Logo<br>C.E.</div>
+    <div class="header-center">
+      <h2>Instrumento No. 001</h2>
+      <div class="sub">Tarjeta de Deméritos del Estudiante</div>
+    </div>
+    <div class="logo-circle">Escudo<br>Inst.</div>
+  </div>
 
-            <div class="logo-placeholder">Escudo</div>
+  <div class="doc-body">
+
+    <!-- CENTRO EDUCATIVO -->
+    <div class="section">
+      <div class="section-title"><span>📋</span> Información del Centro Educativo</div>
+      <div class="info-grid">
+        <div class="field wide">
+          <label>Centro Educativo</label>
+          <input type="text" value="COMPLEJO EDUCATIVO CANTÓN SAN ISIDRO" readonly>
         </div>
-
-        <!-- DATOS DEL CENTRO EDUCATIVO -->
-        <div class="seccion">
-            <div class="seccion-titulo">📋 Información del Centro Educativo</div>
-            <table>
-                <tr>
-                    <td class="label">Centro Educativo</td>
-                    <td colspan="3"><input type="text" value="COMPLEJO EDUCATIVO CANTÓN SAN ISIDRO" readonly></td>
-                    <td class="label">Código</td>
-                    <td><input type="text" value="70056" readonly></td>
-                </tr>
-                <tr>
-                    <td class="label">Departamento</td>
-                    <td><input type="text" value="SAN SALVADOR" readonly></td>
-                    <td class="label">Municipio</td>
-                    <td><input type="text" value="PANCHIMALCO" readonly></td>
-                    <td class="label">Distrito</td>
-                    <td><input type="text" value="06-14" readonly></td>
-                </tr>
-            </table>
+        <div class="field">
+          <label>Código</label>
+          <input type="text" value="70056" readonly>
         </div>
-
-        <!-- DATOS DEL ESTUDIANTE -->
-        <div class="seccion">
-            <div class="seccion-titulo">👤 Información del Estudiante</div>
-            <table>
-                <tr>
-                    <td class="label">Estudiante</td>
-                    <td colspan="3"><input type="text" id="nombreEstudiante" placeholder="Ingrese nombre completo"></td>
-                    <td class="label">NIE</td>
-                    <td><input type="text" id="nie" placeholder="Número"></td>
-                </tr>
-                <tr>
-                    <td class="label">Sexo</td>
-                    <td>
-                        <select id="sexo">
-                            <option value="">Seleccione</option>
-                            <option value="Mujer">Mujer</option>
-                            <option value="Hombre">Hombre</option>
-                        </select>
-                    </td>
-                    <td class="label">Grado/Sección</td>
-                    <td><input type="text" id="grado" placeholder="Ej: 9°A"></td>
-                    <td class="label">Turno</td>
-                    <td>
-                        <select id="turno">
-                            <option value="">Seleccione</option>
-                            <option value="Matutino">Matutino</option>
-                            <option value="Vespertino">Vespertino</option>
-                            <option value="Nocturno">Nocturno</option>
-                        </select>
-                    </td>
-                </tr>
-            </table>
+        <div class="field">
+          <label>Departamento</label>
+          <input type="text" value="SAN SALVADOR" readonly>
         </div>
-
-        <!-- LEYENDA -->
-        <div class="leyenda">
-            <h4>📌 Leyenda</h4>
-            <div class="leyenda-grid">
-                <div class="leyenda-item"><strong>D:</strong> Deméritos (A, B, C, D)</div>
-                <div class="leyenda-item"><strong>R:</strong> Redención (A, B, C)</div>
-                <div class="leyenda-item"><strong>RC:</strong> Reconocimiento (A, B)</div>
-            </div>
+        <div class="field">
+          <label>Municipio</label>
+          <input type="text" value="PANCHIMALCO" readonly>
         </div>
-
-        <!-- TABLA DE REGISTRO -->
-        <div class="seccion">
-            <div class="seccion-titulo">📊 Registro de Deméritos y Reconocimientos</div>
-            <table>
-                <thead>
-                    <tr>
-                        <th rowspan="2">No.</th>
-                        <th rowspan="2">Fecha</th>
-                        <th colspan="4">Deméritos (D)</th>
-                        <th colspan="3">Redención (R)</th>
-                        <th colspan="2">Reconocimiento (RC)</th>
-                        <th rowspan="2">Docente<br>Responsable</th>
-                        <th rowspan="2">Padre/Madre<br>o Responsable</th>
-                        <th rowspan="2">Firma<br>Estudiante</th>
-                    </tr>
-                    <tr>
-                        <th>A</th><th>B</th><th>C</th><th>D</th>
-                        <th>A</th><th>B</th><th>C</th>
-                        <th>A</th><th>B</th>
-                    </tr>
-                </thead>
-                <tbody id="tabla"></tbody>
-            </table>
+        <div class="field">
+          <label>Distrito</label>
+          <input type="text" value="06-14" readonly>
         </div>
-
-        <!-- PANEL DE RESUMEN -->
-        <div class="panel">
-            <div class="card total">
-                📊 Total Deméritos<br>
-                <span id="total" style="font-size: 32px;">0</span>
-            </div>
-
-            <div class="card alerta" id="alerta">
-                ✅ Sin sanción acumulada
-            </div>
-        </div>
-
-        <!-- FIRMA -->
-        <div class="firma-section">
-            <div class="firma-box">
-                <strong>Nombre, firma y sello del Director(a) del C.E.</strong>
-            </div>
-        </div>
-
+      </div>
     </div>
 
-    <!-- CONTROLES -->
-    <div class="controles">
-        <button onclick="exportarPDF()">💾 Guardar en PDF</button>
-        <button onclick="imprimirDocumento()">🖨️ Imprimir</button>
-        <button class="btn-limpiar" onclick="limpiarFormulario()">🗑️ Limpiar Formulario</button>
+    <!-- ESTUDIANTE -->
+    <div class="section">
+      <div class="section-title"><span>👤</span> Información del Estudiante</div>
+      <div class="info-grid">
+        <div class="field wide">
+          <label>Nombre completo</label>
+          <div class="input-with-btn">
+            <input type="text" id="nombreEstudiante" placeholder="Ingrese nombre o seleccione de la lista" autocomplete="off" readonly style="cursor:default;">
+            <button class="btn-select" onclick="abrirModal()">👥 Seleccionar</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>NIE</label>
+          <input type="text" id="nie" placeholder="Número de IE">
+        </div>
+        <div class="field">
+          <label>Sexo</label>
+          <select id="sexo">
+            <option value="">Seleccione</option>
+            <option>Mujer</option>
+            <option>Hombre</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Grado / Sección</label>
+          <input type="text" id="grado" placeholder="Ej: 9°A">
+        </div>
+        <div class="field">
+          <label>Turno</label>
+          <select id="turno">
+            <option value="">Seleccione</option>
+            <option>Matutino</option>
+            <option>Vespertino</option>
+            <option>Nocturno</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Año lectivo</label>
+          <input type="text" id="anio" placeholder="Ej: 2025">
+        </div>
+      </div>
     </div>
+
+    <!-- LEYENDA -->
+    <div class="legend">
+      <div><span class="badge badge-dem">D A–D</span> <strong>Deméritos</strong> — Falta que suma puntos negativos</div>
+      <div><span class="badge badge-red">R A–C</span> <strong>Redención</strong> — Acción positiva que descuenta deméritos</div>
+      <div><span class="badge badge-rec">RC A–B</span> <strong>Reconocimiento</strong> — Mérito destacado (no descuenta)</div>
+    </div>
+
+    <!-- TABLA -->
+    <div class="section">
+      <div class="section-title"><span>📊</span> Registro de Deméritos y Reconocimientos</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th rowspan="2">#</th>
+              <th rowspan="2">Fecha</th>
+              <th rowspan="2">Descripción de la falta / acción</th>
+              <th colspan="4" style="background:#b03a2e;">Deméritos (D)</th>
+              <th colspan="3" style="background:#1a6fa0;">Redención (R)</th>
+              <th colspan="2" style="background:#1a7a3e;">Reconoc. (RC)</th>
+              <th rowspan="2">Docente responsable</th>
+              <th rowspan="2">Firma padre/madre</th>
+              <th rowspan="2">Firma estudiante</th>
+              <th rowspan="2" class="del-cell" style="width:28px;"></th>
+            </tr>
+            <tr>
+              <th class="th-dem">A</th><th class="th-dem">B</th>
+              <th class="th-dem">C</th><th class="th-dem">D</th>
+              <th class="th-red">A</th><th class="th-red">B</th><th class="th-red">C</th>
+              <th class="th-rec">A</th><th class="th-rec">B</th>
+            </tr>
+          </thead>
+          <tbody id="tabla"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- BARRA DE PROGRESO -->
+    <div class="progress-wrap">
+      <div class="progress-label">
+        <span>Progreso de deméritos netos</span>
+        <span id="progressLabel">0 / 15</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar" id="progressBar" style="width:0%; background:var(--green);"></div>
+      </div>
+    </div>
+
+    <!-- RESUMEN -->
+    <div class="summary">
+      <div class="stat-card stat-dem">
+        <div class="val" id="totalDem">0</div>
+        <div class="lbl">Deméritos totales</div>
+      </div>
+      <div class="stat-card stat-red">
+        <div class="val" id="totalRed">0</div>
+        <div class="lbl">Redenciones</div>
+      </div>
+      <div class="stat-card stat-net">
+        <div class="val" id="totalNet">0</div>
+        <div class="lbl">Deméritos netos</div>
+      </div>
+      <div class="stat-card stat-rec">
+        <div class="val" id="totalRec">0</div>
+        <div class="lbl">Reconocimientos</div>
+      </div>
+    </div>
+
+    <!-- SANCIÓN -->
+    <div class="sanction s-none" id="sancion">
+      <div class="sanction-icon">✅</div>
+      <div class="sanction-text">
+        Sin sanción acumulada
+        <small>0 deméritos netos — continúe observando la conducta del estudiante</small>
+      </div>
+    </div>
+
+    <!-- FIRMA -->
+    <div class="firma-section">
+      <div class="firma-box">
+        <div style="height:50px;"></div>
+        <div class="firma-line">Nombre, firma y sello del Director(a) del C.E.</div>
+      </div>
+    </div>
+
+  </div><!-- /doc-body -->
+</div><!-- /documento -->
+
+<script>
+/* ========================================================
+   ESTADO
+   ======================================================== */
+let filaCount = 0;
+
+const SANCIONES = [
+  { min: 15, cls: 's-noprom', icon: '🚫', titulo: 'No promoción de grado',       sub: '15 o más deméritos netos — consecuencia máxima' },
+  { min: 10, cls: 's-susp',   icon: '⛔', titulo: 'Suspensión de privilegios',    sub: '10–14 deméritos netos — revisar con dirección' },
+  { min:  6, cls: 's-comms',  icon: '📞', titulo: 'Comunicación a la familia',    sub: '6–9 deméritos netos — citar al padre/madre o responsable' },
+  { min:  3, cls: 's-warn',   icon: '⚡', titulo: 'Advertencia formal',            sub: '3–5 deméritos netos — registrar en expediente' },
+  { min:  0, cls: 's-none',   icon: '✅', titulo: 'Sin sanción acumulada',         sub: '0–2 deméritos netos — continúe observando la conducta' },
+];
+
+/* ========================================================
+   TABLA
+   ======================================================== */
+function crearFila() {
+  filaCount++;
+  const tr = document.createElement('tr');
+  tr.dataset.id = filaCount;
+  tr.innerHTML = `
+    <td class="num">${filaCount}</td>
+    <td><input type="date" class="fecha-input"></td>
+    <td class="desc"><textarea placeholder="Descripción…" rows="2"></textarea></td>
+    <td class="check-dem"><input type="checkbox" class="dem" data-letra="A" data-desc="No saludar al entrar o al salir del aula."></td>
+    <td class="check-dem"><input type="checkbox" class="dem" data-letra="B" data-desc="Omitir &quot;Por favor&quot; al hacer una petición."></td>
+    <td class="check-dem"><input type="checkbox" class="dem" data-letra="C" data-desc="Omitir &quot;Gracias&quot; al recibir un favor, material o atención."></td>
+    <td class="check-dem"><input type="checkbox" class="dem" data-letra="D" data-desc="Usar un tono grosero o irrespetuoso hacia compañeros, docentes o personal."></td>
+    <td class="check-red"><input type="checkbox" class="red"></td>
+    <td class="check-red"><input type="checkbox" class="red"></td>
+    <td class="check-red"><input type="checkbox" class="red"></td>
+    <td class="check-rec"><input type="checkbox" class="rec"></td>
+    <td class="check-rec"><input type="checkbox" class="rec"></td>
+    <td><input type="text" class="inline" placeholder="Nombre docente"></td>
+    <td><input type="text" class="inline" placeholder="Firma responsable"></td>
+    <td><input type="text" class="inline" placeholder="Firma estudiante"></td>
+    <td class="del-cell"><button onclick="eliminarFila(this)" title="Eliminar fila">✕</button></td>
+  `;
+  return tr;
+}
+
+function agregarFila() {
+  document.getElementById('tabla').appendChild(crearFila());
+}
+
+function eliminarFila(btn) {
+  const fila = btn.closest('tr');
+  if (document.querySelectorAll('#tabla tr').length <= 1) {
+    return; // siempre dejar al menos 1 fila
+  }
+  fila.style.transition = 'opacity .2s';
+  fila.style.opacity = '0';
+  setTimeout(() => { fila.remove(); recalcular(); renumerarFilas(); }, 200);
+}
+
+function renumerarFilas() {
+  document.querySelectorAll('#tabla tr').forEach((tr, i) => {
+    const cell = tr.querySelector('.num');
+    if (cell) cell.textContent = i + 1;
+  });
+}
+
+function generarTabla(n = 12) {
+  const tb = document.getElementById('tabla');
+  tb.innerHTML = '';
+  filaCount = 0;
+  for (let i = 0; i < n; i++) tb.appendChild(crearFila());
+}
+
+/* ========================================================
+   CÁLCULOS
+   ======================================================== */
+function recalcular() {
+  const dem = document.querySelectorAll('.dem:checked').length;
+  const red = document.querySelectorAll('.red:checked').length;
+  const rec = document.querySelectorAll('.rec:checked').length;
+  const net = Math.max(0, dem - red);
+
+  document.getElementById('totalDem').textContent = dem;
+  document.getElementById('totalRed').textContent = red;
+  document.getElementById('totalNet').textContent = net;
+  document.getElementById('totalRec').textContent = rec;
+
+  // Progreso
+  const pct = Math.min(100, (net / 15) * 100);
+  const bar = document.getElementById('progressBar');
+  bar.style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = `${net} / 15`;
+
+  // Color de barra
+  if (net >= 15) bar.style.background = '#c0392b';
+  else if (net >= 10) bar.style.background = '#e74c3c';
+  else if (net >= 6)  bar.style.background = '#e67e22';
+  else if (net >= 3)  bar.style.background = '#f1c40f';
+  else               bar.style.background = '#27ae60';
+
+  // Sanción
+  const sancionEl = document.getElementById('sancion');
+  const s = SANCIONES.find(x => net >= x.min);
+  sancionEl.className = `sanction ${s.cls}`;
+  sancionEl.innerHTML = `
+    <div class="sanction-icon">${s.icon}</div>
+    <div class="sanction-text">${s.titulo}<small>${s.sub}</small></div>
+  `;
+}
+
+/* ========================================================
+   PERSISTENCIA
+   ======================================================== */
+function guardarDatos() {
+  const d = {
+    nombre: document.getElementById('nombreEstudiante').value,
+    nie:    document.getElementById('nie').value,
+    sexo:   document.getElementById('sexo').value,
+    grado:  document.getElementById('grado').value,
+    turno:  document.getElementById('turno').value,
+    anio:   document.getElementById('anio').value,
+  };
+  try { localStorage.setItem('ce_demeritos_estudiante', JSON.stringify(d)); } catch(_) {}
+}
+
+function cargarDatos() {
+  try {
+    const raw = localStorage.getItem('ce_demeritos_estudiante');
+    if (!raw) return;
+    const d = JSON.parse(raw);
+    document.getElementById('nombreEstudiante').value = d.nombre || '';
+    document.getElementById('nie').value  = d.nie   || '';
+    document.getElementById('sexo').value = d.sexo  || '';
+    document.getElementById('grado').value= d.grado || '';
+    document.getElementById('turno').value= d.turno || '';
+    document.getElementById('anio').value = d.anio  || '';
+  } catch(_) {}
+}
+
+/* ========================================================
+   PDF
+   ======================================================== */
+async function exportarPDF() {
+  const btn = document.getElementById('btnPDF');
+  btn.disabled = true;
+  btn.innerHTML = '<span>⏳</span> Generando…';
+
+  // Ocultar columna eliminar para el render
+  document.querySelectorAll('.del-cell').forEach(c => c.style.display = 'none');
+
+  try {
+    const el = document.getElementById('contenidoPDF');
+    const canvas = await html2canvas(el, { scale: 2, useCORS: true, logging: false });
+    const imgData = canvas.toDataURL('image/png');
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'mm', 'a4');
+
+    const pw = 190;
+    const ph = (canvas.height * pw) / canvas.width;
+    let y = 10;
+    const pageH = 277;
+
+    if (ph <= pageH) {
+      pdf.addImage(imgData, 'PNG', 10, y, pw, ph);
+    } else {
+      // multi-página
+      let remaining = ph;
+      let sourceY = 0;
+      while (remaining > 0) {
+        const sliceH = Math.min(remaining, pageH);
+        const sliceCanvas = document.createElement('canvas');
+        const ratio = canvas.width / pw;
+        sliceCanvas.width = canvas.width;
+        sliceCanvas.height = sliceH * ratio;
+        const ctx = sliceCanvas.getContext('2d');
+        ctx.drawImage(canvas, 0, sourceY * ratio, canvas.width, sliceCanvas.height, 0, 0, canvas.width, sliceCanvas.height);
+        if (sourceY > 0) pdf.addPage();
+        pdf.addImage(sliceCanvas.toDataURL('image/png'), 'PNG', 10, 10, pw, sliceH);
+        sourceY += sliceH;
+        remaining -= sliceH;
+      }
+    }
+
+    const nombre = document.getElementById('nombreEstudiante').value.trim() || 'Estudiante';
+    pdf.save(`Instrumento_001_${nombre.replace(/\s+/g, '_')}.pdf`);
+
+  } catch (err) {
+    console.error(err);
+    alert('Error al generar PDF. Por favor, intente de nuevo.');
+  } finally {
+    document.querySelectorAll('.del-cell').forEach(c => c.style.display = '');
+    btn.disabled = false;
+    btn.innerHTML = '<span>💾</span> Guardar PDF';
+  }
+}
+
+/* ========================================================
+   LIMPIAR
+   ======================================================== */
+function limpiarFormulario() {
+  if (!confirm('¿Limpiar todo el formulario? Esta acción no se puede deshacer.')) return;
+  ['nombreEstudiante','nie','grado','anio'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('sexo').value = '';
+  document.getElementById('turno').value = '';
+  try { localStorage.removeItem('ce_demeritos_estudiante'); } catch(_) {}
+  generarTabla();
+  recalcular();
+}
+
+/* ========================================================
+   INIT
+   ======================================================== */
+document.addEventListener('DOMContentLoaded', () => {
+  generarTabla();
+  cargarDatos();
+
+  // Cambios globales
+  document.addEventListener('change', e => {
+    if (e.target.matches('.dem, .red, .rec')) recalcular();
+
+    // Auto-completar descripción al marcar/desmarcar un demérito
+    if (e.target.matches('.dem')) {
+      const fila = e.target.closest('tr');
+      const textarea = fila.querySelector('.desc textarea');
+
+      // Recopilar todas las letras marcadas en esta fila
+      const marcados = [...fila.querySelectorAll('.dem:checked')];
+      if (marcados.length > 0) {
+        const textos = marcados.map(cb => `${cb.dataset.letra}) ${cb.dataset.desc}`);
+        textarea.value = textos.join('\n');
+      } else {
+        textarea.value = '';
+      }
+    }
+
+    if (e.target.matches('#nombreEstudiante, #nie, #sexo, #grado, #turno, #anio')) guardarDatos();
+  });
+  document.addEventListener('input', e => {
+    if (e.target.matches('#nombreEstudiante, #nie, #grado, #anio')) guardarDatos();
+  });
+});
+</script>
+<!-- MODAL SELECTOR DE ESTUDIANTE -->
+<div class="modal-overlay" id="modalOverlay" onclick="cerrarModalOverlay(event)">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-header">
+      <div>
+        <h3 id="modalTitle">Seleccionar Estudiante</h3>
+        <p>Haga clic en un nombre para autocompletar el formulario</p>
+      </div>
+      <button class="modal-close" onclick="cerrarModal()" aria-label="Cerrar">✕</button>
+    </div>
+
+    <div class="modal-search-wrap">
+      <input type="text" class="modal-search" id="modalSearch"
+             placeholder="Buscar por nombre o NIE…"
+             oninput="filtrarEstudiantes()"
+             autocomplete="off">
+    </div>
+
+    <div class="modal-list" id="modalList"></div>
+  </div>
 </div>
 
 <script>
+/* ========================================================
+   DATOS ESTUDIANTES
+   ======================================================== */
+const ESTUDIANTES = [
+  { no: 1,  nie: '10192638', nombre: 'ACOSTA DEODANES, CAROLINA LISSETH',     sexo: 'Mujer'  },
+  { no: 2,  nie: '20085229', nombre: 'AGUILAR ORTIZ, CESAR ISMAEL',           sexo: 'Hombre' },
+  { no: 3,  nie: '20085270', nombre: 'BENITEZ PEREZ, OSCAR EFRAIN',           sexo: 'Hombre' },
+  { no: 4,  nie: '20085307', nombre: 'CARRILLO VENTURA, RUTH NOEMY',          sexo: 'Mujer'  },
+  { no: 5,  nie: '19933288', nombre: 'CASTRO ORTIZ, JAZMIN SARAI',            sexo: 'Mujer'  },
+  { no: 6,  nie: '20008551', nombre: 'CORNEJO ORTIZ, PAMELA GUADALUPE',       sexo: 'Mujer'  },
+  { no: 7,  nie: '19933292', nombre: 'CRUZ GARCÍA, JHAMILTON GEOVANY',        sexo: 'Hombre' },
+  { no: 8,  nie: '10380636', nombre: 'CRUZ VEGA, JUANA ELENA',                sexo: 'Mujer'  },
+  { no: 9,  nie: '20085334', nombre: 'DEODANES JORGE, DAVID ALEXANDER',       sexo: 'Hombre' },
+  { no: 10, nie: '20161320', nombre: 'DEODANES PÉREZ, CARLOS DANIEL',         sexo: 'Hombre' },
+  { no: 11, nie: '19933320', nombre: 'DEODANES RODRIGUEZ, WILLIAN LEONEL',    sexo: 'Hombre' },
+  { no: 12, nie: '20161321', nombre: 'DEODANES SANTOS, KATHERIN MARITZA',     sexo: 'Mujer'  },
+  { no: 13, nie: '20116603', nombre: 'JORGE BENITEZ, XAVIER ERNESTO',         sexo: 'Hombre' },
+  { no: 14, nie: '20116605', nombre: 'LEON RODRIGUEZ, JEFFERSON ALEXIS',      sexo: 'Hombre' },
+  { no: 15, nie: '20116607', nombre: 'MARTINEZ PEREZ, MANUEL ENRIQUE',        sexo: 'Hombre' },
+  { no: 16, nie: '20116608', nombre: 'MARTINEZ VASQUEZ, ANDERSON MAURICIO',   sexo: 'Hombre' },
+  { no: 17, nie: '20161327', nombre: 'MARTÍNEZ MIRANDA, JOSÉ BRYAN',          sexo: 'Hombre' },
+  { no: 18, nie: '20116614', nombre: 'MENDEZ PEREZ, JORGE ERNESTO',           sexo: 'Hombre' },
+  { no: 19, nie: '19964662', nombre: 'ORTIZ MARTÍNEZ, JOSELYN ROXANA',        sexo: 'Mujer'  },
+  { no: 20, nie: '20116635', nombre: 'PEREZ JACINTO, ROSIBEL',                sexo: 'Mujer'  },
+  { no: 21, nie: '19964672', nombre: 'PÉREZ DEODANES, ISAÍAS ARMANDO',        sexo: 'Hombre' },
+  { no: 22, nie: '20116666', nombre: 'VASQUEZ BENITES, DORIS ESTEFANNY',      sexo: 'Mujer'  },
+  { no: 23, nie: '20116669', nombre: 'VASQUEZ MARTINEZ, NELSON ANTONIO',      sexo: 'Hombre' },
+  { no: 24, nie: '20116683', nombre: 'VENITES RODRIGUEZ, SERGIO JAVIER',      sexo: 'Hombre' },
+];
 
-// Generar filas de la tabla
-function generarTabla() {
-    const tabla = document.getElementById('tabla');
-    tabla.innerHTML = '';
-    
-    for(let i = 1; i <= 12; i++) {
-        tabla.innerHTML += `
-        <tr>
-            <td><strong>${i}</strong></td>
-            <td><input type="date" class="fecha-input"></td>
-            
-            <td><input type="checkbox" class="dem" data-tipo="demérito"></td>
-            <td><input type="checkbox" class="dem" data-tipo="demérito"></td>
-            <td><input type="checkbox" class="dem" data-tipo="demérito"></td>
-            <td><input type="checkbox" class="dem" data-tipo="demérito"></td>
-            
-            <td><input type="checkbox" class="red" data-tipo="redención"></td>
-            <td><input type="checkbox" class="red" data-tipo="redención"></td>
-            <td><input type="checkbox" class="red" data-tipo="redención"></td>
-            
-            <td><input type="checkbox" class="rec" data-tipo="reconocimiento"></td>
-            <td><input type="checkbox" class="rec" data-tipo="reconocimiento"></td>
-            
-            <td><textarea placeholder="Nombre del docente"></textarea></td>
-            <td><textarea placeholder="Firma del responsable"></textarea></td>
-            <td><textarea placeholder="Firma del estudiante"></textarea></td>
-        </tr>`;
-    }
+let estudianteSeleccionado = null;
+
+/* ========================================================
+   MODAL
+   ======================================================== */
+function abrirModal() {
+  document.getElementById('modalSearch').value = '';
+  renderLista(ESTUDIANTES);
+  document.getElementById('modalOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('modalSearch').focus(), 120);
 }
 
-// Calcular deméritos y actualizar UI
-function calcularDemeritos() {
-    const dem = document.querySelectorAll(".dem:checked").length;
-    const red = document.querySelectorAll(".red:checked").length;
-    
-    let total = dem - red;
-    if(total < 0) total = 0;
-    
-    document.getElementById("total").innerText = total;
-    
-    const alerta = document.getElementById("alerta");
-    
-    // Actualizar mensaje según deméritos
-    if(total >= 15) {
-        alerta.innerHTML = "🚫 No promoción de grado";
-        alerta.style.background = "linear-gradient(135deg, #dc3545 0%, #c82333 100%)";
-    } else if(total >= 10) {
-        alerta.innerHTML = "⚠️ Suspensión de privilegios";
-        alerta.style.background = "linear-gradient(135deg, #fd7e14 0%, #e8590c 100%)";
-    } else if(total >= 6) {
-        alerta.innerHTML = "📞 Comunicación a la familia";
-        alerta.style.background = "linear-gradient(135deg, #ffc107 0%, #e0a800 100%)";
-    } else if(total >= 3) {
-        alerta.innerHTML = "⚡ Advertencia verbal";
-        alerta.style.background = "linear-gradient(135deg, #ffc107 0%, #e0a800 100%)";
-    } else {
-        alerta.innerHTML = "✅ Sin sanción acumulada";
-        alerta.style.background = "linear-gradient(135deg, #28a745 0%, #20c997 100%)";
-    }
+function cerrarModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
 }
 
-// Exportar a PDF
-async function exportarPDF() {
-    const boton = event.target;
-    boton.disabled = true;
-    boton.innerHTML = "⏳ Generando PDF...";
-    
-    try {
-        const canvas = await html2canvas(document.getElementById("contenidoPDF"), {
-            scale: 2,
-            useCORS: true,
-            logging: false
-        });
-        
-        const imgData = canvas.toDataURL("image/png");
-        const {jsPDF} = window.jspdf;
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        
-        const imgWidth = 190;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        
-        pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
-        
-        const nombreEstudiante = document.getElementById('nombreEstudiante').value || 'Estudiante';
-        const nombreArchivo = `Instrumento_001_${nombreEstudiante.replace(/\s+/g, '_')}.pdf`;
-        
-        pdf.save(nombreArchivo);
-        
-    } catch (error) {
-        console.error('Error al generar PDF:', error);
-        alert('Ocurrió un error al generar el PDF. Por favor, intente nuevamente.');
-    } finally {
-        boton.disabled = false;
-        boton.innerHTML = "💾 Guardar en PDF";
-    }
+function cerrarModalOverlay(e) {
+  if (e.target === document.getElementById('modalOverlay')) cerrarModal();
 }
 
-// Imprimir documento
-function imprimirDocumento() {
-    window.print();
-}
-
-// Limpiar formulario
-function limpiarFormulario() {
-    if(confirm('¿Está seguro de que desea limpiar todo el formulario?')) {
-        // Limpiar datos del estudiante
-        document.getElementById('nombreEstudiante').value = '';
-        document.getElementById('nie').value = '';
-        document.getElementById('sexo').value = '';
-        document.getElementById('grado').value = '';
-        document.getElementById('turno').value = '';
-        
-        // Limpiar tabla
-        document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
-        document.querySelectorAll('input[type="date"]').forEach(input => input.value = '');
-        document.querySelectorAll('textarea').forEach(ta => ta.value = '');
-        
-        calcularDemeritos();
-    }
-}
-
-// Guardar en localStorage
-function guardarDatos() {
-    const datos = {
-        nombreEstudiante: document.getElementById('nombreEstudiante').value,
-        nie: document.getElementById('nie').value,
-        sexo: document.getElementById('sexo').value,
-        grado: document.getElementById('grado').value,
-        turno: document.getElementById('turno').value
-    };
-    
-    localStorage.setItem('datosEstudiante', JSON.stringify(datos));
-}
-
-// Cargar desde localStorage
-function cargarDatos() {
-    const datos = localStorage.getItem('datosEstudiante');
-    if(datos) {
-        const parsed = JSON.parse(datos);
-        document.getElementById('nombreEstudiante').value = parsed.nombreEstudiante || '';
-        document.getElementById('nie').value = parsed.nie || '';
-        document.getElementById('sexo').value = parsed.sexo || '';
-        document.getElementById('grado').value = parsed.grado || '';
-        document.getElementById('turno').value = parsed.turno || '';
-    }
-}
-
-// Inicializar
-document.addEventListener('DOMContentLoaded', function() {
-    generarTabla();
-    cargarDatos();
-    
-    // Event listener para cálculo automático
-    document.addEventListener("change", function(e) {
-        if(e.target.matches('.dem, .red, .rec')) {
-            calcularDemeritos();
-        }
-        
-        // Guardar datos al cambiar
-        if(e.target.matches('#nombreEstudiante, #nie, #sexo, #grado, #turno')) {
-            guardarDatos();
-        }
-    });
+// Cerrar con Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') cerrarModal();
 });
 
-</script>
+function filtrarEstudiantes() {
+  const q = document.getElementById('modalSearch').value.trim().toLowerCase();
+  const filtrados = q
+    ? ESTUDIANTES.filter(s => s.nombre.toLowerCase().includes(q) || s.nie.includes(q))
+    : ESTUDIANTES;
+  renderLista(filtrados);
+}
 
+function renderLista(lista) {
+  const container = document.getElementById('modalList');
+  if (!lista.length) {
+    container.innerHTML = '<div class="modal-no-results">🔍 No se encontraron resultados</div>';
+    return;
+  }
+  container.innerHTML = lista.map(s => `
+    <div class="modal-item ${estudianteSeleccionado?.nie === s.nie ? 'selected' : ''}"
+         onclick="seleccionarEstudiante(${s.no - 1})">
+      <div class="modal-num">${s.no}</div>
+      <div class="modal-info">
+        <div class="est-name">${resaltar(s.nombre)}</div>
+        <div class="est-nie">NIE: ${resaltar(s.nie)}</div>
+      </div>
+      <span style="color:#c8a84b; font-size:18px; opacity:${estudianteSeleccionado?.nie === s.nie ? '1' : '0'}">✓</span>
+    </div>
+  `).join('');
+}
+
+function resaltar(texto) {
+  const q = document.getElementById('modalSearch').value.trim();
+  if (!q) return texto;
+  const re = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+  return texto.replace(re, '<mark style="background:#fff3cd;border-radius:2px;padding:0 1px;">$1</mark>');
+}
+
+function seleccionarEstudiante(idx) {
+  const est = ESTUDIANTES[idx];
+  estudianteSeleccionado = est;
+
+  const hora = new Date().getHours();
+  const turnoAuto = hora < 12 ? 'Matutino' : 'Vespertino';
+
+  document.getElementById('nombreEstudiante').value = est.nombre;
+  document.getElementById('nie').value              = est.nie;
+  document.getElementById('sexo').value             = est.sexo;
+  document.getElementById('grado').value            = '1° Año General';
+  document.getElementById('anio').value             = '2026';
+  document.getElementById('turno').value            = turnoAuto;
+
+  // Animación de confirmación en todos los campos completados
+  ['nombreEstudiante', 'nie', 'grado', 'anio'].forEach(id => {
+    const el = document.getElementById(id);
+    el.style.transition = 'background .15s';
+    el.style.background = '#e8f5e9';
+    setTimeout(() => { el.style.background = ''; }, 700);
+  });
+  // También animar los selects
+  ['sexo', 'turno'].forEach(id => {
+    const el = document.getElementById(id);
+    el.style.transition = 'background .15s';
+    el.style.background = '#e8f5e9';
+    setTimeout(() => { el.style.background = ''; }, 700);
+  });
+
+  guardarDatos();
+  cerrarModal();
+}
+</script>
 </body>
 </html>
