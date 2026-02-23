@@ -1,666 +1,2813 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Instrumento No. 001 — Tarjeta de Deméritos</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<style>
-:root {
-  --navy:    #0d1f3c;
-  --navy2:   #162d52;
-  --gold:    #c8a84b;
-  --gold-lt: #e8c96a;
-  --cream:   #f9f6f0;
-  --red:     #c0392b;
-  --orange:  #d35400;
-  --green:   #1e8449;
-  --muted:   #8a99b0;
-  --border:  #dce3ed;
-  --radius:  6px;
-}
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-  font-family: 'DM Sans', sans-serif;
-  background: var(--navy);
-  background-image: radial-gradient(ellipse at 20% 0%,#1e3a6e55 0%,transparent 60%), radial-gradient(ellipse at 80% 100%,#c8a84b22 0%,transparent 60%);
-  min-height: 100vh;
-  padding: 24px 16px 40px;
-  color: #222;
-}
-
-/* TOOLBAR */
-.toolbar { max-width: 900px; margin: 0 auto 18px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.toolbar h1 { font-family: 'DM Serif Display', serif; color: var(--gold-lt); font-size: 20px; flex: 1; letter-spacing: .02em; }
-.btn { display: inline-flex; align-items: center; gap: 7px; padding: 9px 18px; border: none; border-radius: 50px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: transform .15s, box-shadow .15s; white-space: nowrap; }
-.btn:hover  { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,0,0,.25); }
-.btn:active { transform: translateY(0); }
-.btn:disabled { opacity: .55; pointer-events: none; }
-.btn-pdf   { background: var(--gold); color: var(--navy); }
-.btn-print { background: #2c3e50; color: #fff; }
-.btn-add   { background: var(--green); color: #fff; }
-.btn-clear { background: var(--red); color: #fff; }
-
-/* DOCUMENTO */
-.documento { max-width: 900px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,.35); overflow: hidden; }
-
-/* HEADER */
-.header { background: var(--navy); padding: 24px 32px; display: grid; grid-template-columns: 72px 1fr 72px; align-items: center; gap: 16px; border-bottom: 4px solid var(--gold); }
-.logo-circle { width: 72px; height: 72px; border-radius: 50%; background: rgba(255,255,255,.08); border: 2px solid var(--gold); display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--gold); text-align: center; font-weight: 600; }
-.header-center { text-align: center; }
-.header-center h2 { font-family: 'DM Serif Display', serif; color: #fff; font-size: 26px; letter-spacing: .03em; line-height: 1.2; }
-.header-center .sub { color: var(--gold-lt); font-size: 13px; font-weight: 500; margin-top: 4px; letter-spacing: .05em; text-transform: uppercase; }
-
-/* DOC BODY */
-.doc-body { padding: 28px 32px; }
-
-/* SECCIONES */
-.section { margin-bottom: 22px; }
-.section-title { display: flex; align-items: center; gap: 8px; background: var(--navy); color: #fff; padding: 7px 14px; border-radius: var(--radius); font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 10px; }
-.section-title span { font-size: 15px; }
-
-/* INFO GRID */
-.info-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap: 12px; }
-.field { display: flex; flex-direction: column; gap: 3px; }
-.field.wide { grid-column: span 2; }
-.field label { font-size: 10px; font-weight: 700; color: var(--muted); letter-spacing: .07em; text-transform: uppercase; }
-.field input, .field select { border: 1.5px solid var(--border); border-radius: var(--radius); padding: 7px 10px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--navy); background: var(--cream); transition: border-color .15s, background .15s; width: 100%; }
-.field input:focus, .field select:focus { outline: none; border-color: var(--gold); background: #fff; box-shadow: 0 0 0 3px rgba(200,168,75,.15); }
-.field input[readonly] { background: #f0f2f5; color: #555; cursor: default; }
-.input-with-btn { display: flex; gap: 6px; align-items: center; }
-.input-with-btn input { flex: 1; }
-.btn-select { flex-shrink: 0; padding: 7px 12px; background: var(--navy); color: var(--gold-lt); border: none; border-radius: var(--radius); font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: background .15s; letter-spacing: .03em; }
-.btn-select:hover { background: var(--navy2); }
-
-/* LEYENDA */
-.legend { display: flex; gap: 20px; flex-wrap: wrap; background: #f4f7fb; border: 1.5px solid var(--border); border-radius: var(--radius); padding: 10px 16px; font-size: 11.5px; margin-bottom: 22px; }
-.legend strong { color: var(--navy); margin-right: 4px; }
-.badge { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; border-radius: 50px; font-size: 11px; font-weight: 700; }
-.badge-dem { background: #fce8e6; color: var(--red); }
-.badge-red { background: #e8f4fd; color: #1a73b9; }
-.badge-rec { background: #e6f9ed; color: var(--green); }
-
-/* TABLA */
-.table-wrap { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; font-size: 11px; }
-thead tr:first-child th { background: var(--navy2); color: #fff; padding: 8px 6px; font-weight: 700; letter-spacing: .04em; font-size: 10.5px; }
-thead tr:nth-child(2) th { background: #e8ecf5; color: var(--navy); font-weight: 700; padding: 6px 4px; }
-thead tr:nth-child(2) th.th-dem { background: #fce8e6; color: var(--red); }
-thead tr:nth-child(2) th.th-red { background: #e0eefc; color: #1a73b9; }
-thead tr:nth-child(2) th.th-rec { background: #e2f5e9; color: var(--green); }
-tbody tr { transition: background .1s; }
-tbody tr:nth-child(even) { background: #f9fafc; }
-tbody tr:hover { background: #f0f5ff; }
-td { border: 1px solid #dce3ed; padding: 4px; vertical-align: middle; text-align: center; }
-td.num { font-weight: 700; color: var(--muted); width: 28px; }
-td input[type="date"] { border: 1.5px solid var(--border); border-radius: 4px; padding: 3px 4px; font-size: 10.5px; font-family: inherit; background: var(--cream); color: var(--navy); width: 115px; transition: border-color .15s; }
-td input[type="date"]:focus { outline: none; border-color: var(--gold); }
-td input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-color: var(--navy); }
-td.check-dem input[type="checkbox"] { accent-color: var(--red); }
-td.check-red input[type="checkbox"] { accent-color: #1a73b9; }
-td.check-rec input[type="checkbox"] { accent-color: var(--green); }
-td textarea, td input[type="text"].inline { border: 1px solid var(--border); border-radius: 4px; padding: 3px 5px; font-size: 10.5px; font-family: inherit; background: transparent; resize: none; width: 100%; min-height: 32px; transition: border-color .15s, background .15s; }
-td textarea:focus, td input[type="text"].inline:focus { outline: none; border-color: var(--gold); background: #fffdf5; }
-td.desc textarea { min-height: 36px; width: 130px; }
-td.del-cell button { background: none; border: none; color: #ccc; font-size: 15px; cursor: pointer; padding: 2px 4px; border-radius: 4px; transition: color .15s, background .15s; line-height: 1; }
-td.del-cell button:hover { color: var(--red); background: #fce8e6; }
-
-/* PROGRESO */
-.progress-wrap { margin: 0 0 22px; }
-.progress-label { display: flex; justify-content: space-between; font-size: 11px; font-weight: 600; color: var(--muted); margin-bottom: 5px; }
-.progress-bar-bg { background: #e8ecf5; border-radius: 50px; height: 10px; overflow: hidden; }
-.progress-bar { height: 100%; border-radius: 50px; transition: width .4s, background .4s; }
-
-/* RESUMEN */
-.summary { display: grid; grid-template-columns: repeat(auto-fit,minmax(160px,1fr)); gap: 14px; margin: 22px 0; }
-.stat-card { border-radius: 10px; padding: 16px 18px; text-align: center; position: relative; overflow: hidden; transition: transform .2s; }
-.stat-card:hover { transform: translateY(-2px); }
-.stat-card::before { content:''; position:absolute; inset:0; opacity:.07; background: repeating-linear-gradient(45deg,#fff 0,#fff 2px,transparent 2px,transparent 8px); }
-.stat-card .val { font-family: 'DM Serif Display',serif; font-size: 42px; line-height: 1; }
-.stat-card .lbl { font-size: 11.5px; font-weight: 600; margin-top: 4px; letter-spacing: .04em; text-transform: uppercase; opacity: .85; }
-.stat-dem { background: #fce8e6; color: var(--red); }
-.stat-red { background: #e0eefc; color: #1a73b9; }
-.stat-net { background: var(--navy); color: #fff; }
-.stat-rec { background: #e2f5e9; color: var(--green); }
-
-/* SANCIÓN */
-.sanction { border-radius: 10px; padding: 14px 20px; display: flex; align-items: center; gap: 12px; margin-bottom: 22px; font-weight: 600; font-size: 14px; transition: background .4s,color .4s; }
-.sanction-icon { font-size: 26px; flex-shrink: 0; }
-.sanction-text { line-height: 1.4; }
-.sanction-text small { display: block; font-size: 11px; font-weight: 400; opacity: .75; margin-top: 2px; }
-.s-none   { background: #e6f9ed; color: var(--green); }
-.s-warn   { background: #fef9e7; color: #b7950b; }
-.s-comms  { background: #fef2e0; color: var(--orange); }
-.s-susp   { background: #fce8e6; color: var(--red); }
-.s-noprom { background: var(--red); color: #fff; }
-
-/* FIRMA */
-.firma-section { margin-top: 30px; padding-top: 20px; border-top: 1.5px solid var(--border); display: flex; justify-content: center; }
-.firma-box { text-align: center; min-width: 280px; }
-.firma-line { border-top: 2px solid var(--navy); padding-top: 8px; font-size: 11.5px; font-weight: 600; color: var(--navy); }
-
-/* MODAL ESTUDIANTE */
-.modal-overlay { position: fixed; inset: 0; background: rgba(10,20,40,.65); backdrop-filter: blur(4px); z-index: 1000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity .2s; }
-.modal-overlay.open { opacity: 1; pointer-events: all; }
-.modal { background: #fff; border-radius: 14px; width: 520px; max-width: 95vw; max-height: 80vh; display: flex; flex-direction: column; box-shadow: 0 24px 64px rgba(0,0,0,.4); transform: translateY(18px) scale(.97); transition: transform .22s cubic-bezier(.34,1.56,.64,1); overflow: hidden; }
-.modal-overlay.open .modal { transform: translateY(0) scale(1); }
-.modal-header { background: var(--navy); padding: 18px 22px; display: flex; align-items: center; justify-content: space-between; border-bottom: 3px solid var(--gold); flex-shrink: 0; }
-.modal-header h3 { font-family: 'DM Serif Display',serif; color: #fff; font-size: 18px; letter-spacing: .02em; }
-.modal-header p  { color: var(--gold-lt); font-size: 11.5px; margin-top: 2px; }
-.modal-close { background: rgba(255,255,255,.12); border: none; color: #fff; font-size: 18px; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .15s; flex-shrink: 0; }
-.modal-close:hover { background: rgba(255,255,255,.25); }
-.modal-search-wrap { padding: 14px 18px 10px; flex-shrink: 0; border-bottom: 1.5px solid var(--border); }
-.modal-search { width: 100%; border: 1.5px solid var(--border); border-radius: 50px; padding: 9px 16px 9px 38px; font-family: 'DM Sans',sans-serif; font-size: 13px; color: var(--navy); background: var(--cream) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238a99b0' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='M21 21l-4.35-4.35'/%3E%3C/svg%3E") no-repeat 13px center; transition: border-color .15s, box-shadow .15s; }
-.modal-search:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(200,168,75,.15); background-color: #fff; }
-.modal-list { overflow-y: auto; flex: 1; padding: 8px 10px; }
-.modal-item { display: flex; align-items: center; gap: 14px; padding: 10px 12px; border-radius: 8px; cursor: pointer; transition: background .12s; border: 1.5px solid transparent; }
-.modal-item:hover    { background: #f0f5ff; border-color: #c8d8f8; }
-.modal-item.selected { background: #e8f0fe; border-color: var(--gold); }
-.modal-num { width: 26px; height: 26px; border-radius: 50%; background: var(--navy); color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.modal-info { flex: 1; }
-.modal-info .est-name { font-size: 13px; font-weight: 600; color: var(--navy); letter-spacing: .01em; }
-.modal-info .est-nie  { font-size: 11px; color: var(--muted); margin-top: 1px; }
-.modal-no-results { text-align: center; color: var(--muted); font-size: 13px; padding: 30px 0; }
-
-/* MODALES CONFIRMACIÓN */
-.confirm-overlay { position: fixed; inset: 0; background: rgba(10,20,40,.55); backdrop-filter: blur(3px); z-index: 1100; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity .2s; }
-.confirm-overlay.open { opacity: 1; pointer-events: all; }
-.confirm-box { background: #fff; border-radius: 14px; width: 420px; max-width: 94vw; box-shadow: 0 24px 64px rgba(0,0,0,.35); overflow: hidden; transform: scale(.93) translateY(16px); transition: transform .22s cubic-bezier(.34,1.56,.64,1); }
-.confirm-overlay.open .confirm-box { transform: scale(1) translateY(0); }
-.confirm-header { padding: 18px 22px 14px; border-bottom: 3px solid; }
-.confirm-header.red-theme { background: #1a6fa0; border-color: #4fb3e8; }
-.confirm-header.rec-theme { background: #1a7a3e; border-color: #4cca7a; }
-.confirm-header h3 { font-family: 'DM Serif Display',serif; color: #fff; font-size: 17px; }
-.confirm-header p  { color: rgba(255,255,255,.75); font-size: 11.5px; margin-top: 3px; }
-.confirm-body { padding: 20px 22px; }
-.confirm-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; border-radius: 8px; margin-bottom: 8px; border: 1.5px solid var(--border); background: #f8fafd; }
-.confirm-letter { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; flex-shrink: 0; margin-top: 1px; }
-.red-theme-letter { background: #1a6fa0; color: #fff; }
-.rec-theme-letter { background: #1a7a3e; color: #fff; }
-.confirm-item-text { font-size: 13px; color: var(--navy); line-height: 1.5; }
-.confirm-footer { padding: 14px 22px 18px; display: flex; gap: 10px; justify-content: flex-end; border-top: 1.5px solid var(--border); }
-.btn-cancel-c { padding: 8px 20px; border: 1.5px solid var(--border); border-radius: 50px; background: #fff; color: var(--muted); font-family: 'DM Sans',sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: background .15s; }
-.btn-cancel-c:hover { background: #f0f2f5; }
-.btn-confirm-red { padding: 8px 22px; border: none; border-radius: 50px; background: #1a6fa0; color: #fff; font-family: 'DM Sans',sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; transition: background .15s; }
-.btn-confirm-red:hover { background: #145a84; }
-.btn-confirm-rec { padding: 8px 22px; border: none; border-radius: 50px; background: #1a7a3e; color: #fff; font-family: 'DM Sans',sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; transition: background .15s; }
-.btn-confirm-rec:hover { background: #145a2e; }
-
-/* PRINT */
-@media print {
-  body { background: #fff; padding: 0; }
-  .toolbar { display: none; }
-  .documento { max-width: 100%; box-shadow: none; border-radius: 0; }
-  .btn { display: none; }
-  .del-cell { display: none; }
-  td input[type="date"] { width: auto; }
-}
-
-/* RESPONSIVE */
-@media (max-width: 600px) {
-  .doc-body { padding: 16px; }
-  .header   { padding: 16px; }
-  .field.wide { grid-column: span 1; }
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Instrumento No. 001 — Tarjeta de Deméritos</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  
+  <style>
+    :root {
+      --navy: #0d1f3c;
+      --navy2: #162d52;
+      --gold: #c8a84b;
+      --gold-lt: #e8c96a;
+      --cream: #f9f6f0;
+      --red: #c0392b;
+      --orange: #d35400;
+      --green: #1e8449;
+      --muted: #8a99b0;
+      --border: #dce3ed;
+      --radius: 8px;
+      --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
+      --shadow-md: 0 8px 24px rgba(0,0,0,0.12);
+      --shadow-lg: 0 20px 60px rgba(0,0,0,0.35);
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
+    }
+    
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--navy);
+      background-image: 
+        radial-gradient(ellipse at 20% 0%, rgba(30, 58, 110, 0.33) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 100%, rgba(200, 168, 75, 0.13) 0%, transparent 60%);
+      min-height: 100vh;
+      padding: 24px 16px 40px;
+      color: #222;
+      line-height: 1.6;
+    }
+    
+    /* TOOLBAR */
+    .toolbar { 
+      max-width: 1000px; 
+      margin: 0 auto 24px; 
+      display: flex; 
+      align-items: center; 
+      gap: 12px; 
+      flex-wrap: wrap;
+      padding: 0 8px;
+    }
+    
+    .toolbar h1 { 
+      font-family: 'DM Serif Display', serif; 
+      color: var(--gold-lt); 
+      font-size: 22px; 
+      flex: 1; 
+      letter-spacing: 0.02em;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .btn-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    
+    .btn { 
+      display: inline-flex; 
+      align-items: center; 
+      gap: 8px; 
+      padding: 10px 20px; 
+      border: none; 
+      border-radius: 50px; 
+      font-family: 'DM Sans', sans-serif; 
+      font-size: 13px; 
+      font-weight: 600; 
+      cursor: pointer; 
+      transition: var(--transition);
+      white-space: nowrap;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.2) 50%, transparent 70%);
+      transform: translateX(-100%);
+      transition: transform 0.6s;
+    }
+    
+    .btn:hover::before {
+      transform: translateX(100%);
+    }
+    
+    .btn:hover { 
+      transform: translateY(-2px); 
+      box-shadow: var(--shadow-md);
+    }
+    
+    .btn:active { 
+      transform: translateY(0); 
+    }
+    
+    .btn:disabled { 
+      opacity: 0.6; 
+      pointer-events: none; 
+      cursor: not-allowed;
+    }
+    
+    .btn-pdf { background: var(--gold); color: var(--navy); }
+    .btn-excel { background: #1e8449; color: #fff; }
+    .btn-print { background: #2c3e50; color: #fff; }
+    .btn-add { background: var(--green); color: #fff; }
+    .btn-clear { background: var(--red); color: #fff; }
+    .btn-undo { background: #6c757d; color: #fff; }
+    
+    /* DOCUMENTO */
+    .documento { 
+      max-width: 1000px; 
+      margin: 0 auto; 
+      background: #fff; 
+      border-radius: 16px; 
+      box-shadow: var(--shadow-lg); 
+      overflow: hidden;
+      animation: slideUp 0.6s ease-out;
+    }
+    
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    /* HEADER */
+    .header { 
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%);
+      padding: 28px 32px; 
+      display: grid; 
+      grid-template-columns: 80px 1fr 80px; 
+      align-items: center; 
+      gap: 20px; 
+      border-bottom: 4px solid var(--gold);
+      position: relative;
+    }
+    
+    .header::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+    
+    .logo-circle { 
+      width: 80px; 
+      height: 80px; 
+      border-radius: 50%; 
+      background: rgba(255,255,255,0.08); 
+      border: 2px solid var(--gold); 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      font-size: 11px; 
+      color: var(--gold); 
+      text-align: center; 
+      font-weight: 600;
+      transition: var(--transition);
+    }
+    
+    .logo-circle:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(200, 168, 75, 0.3);
+    }
+    
+    .header-center { 
+      text-align: center; 
+    }
+    
+    .header-center h2 { 
+      font-family: 'DM Serif Display', serif; 
+      color: #fff; 
+      font-size: 28px; 
+      letter-spacing: 0.03em; 
+      line-height: 1.2;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .header-center .sub { 
+      color: var(--gold-lt); 
+      font-size: 13px; 
+      font-weight: 500; 
+      margin-top: 6px; 
+      letter-spacing: 0.08em; 
+      text-transform: uppercase;
+    }
+    
+    /* DOC BODY */
+    .doc-body { 
+      padding: 32px; 
+    }
+    
+    /* SECCIONES */
+    .section { 
+      margin-bottom: 28px;
+      animation: fadeIn 0.5s ease-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .section-title { 
+      display: flex; 
+      align-items: center; 
+      gap: 10px; 
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%);
+      color: #fff; 
+      padding: 10px 16px; 
+      border-radius: var(--radius); 
+      font-size: 12px; 
+      font-weight: 700; 
+      letter-spacing: 0.06em; 
+      text-transform: uppercase; 
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .section-title span { 
+      font-size: 16px; 
+    }
+    
+    /* INFO GRID */
+    .info-grid { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); 
+      gap: 16px; 
+    }
+    
+    .field { 
+      display: flex; 
+      flex-direction: column; 
+      gap: 6px; 
+    }
+    
+    .field.wide { 
+      grid-column: span 2; 
+    }
+    
+    .field label { 
+      font-size: 11px; 
+      font-weight: 700; 
+      color: var(--muted); 
+      letter-spacing: 0.07em; 
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    
+    .field label .required {
+      color: var(--red);
+    }
+    
+    .field input, .field select { 
+      border: 2px solid var(--border); 
+      border-radius: var(--radius); 
+      padding: 10px 12px; 
+      font-family: 'DM Sans', sans-serif; 
+      font-size: 14px; 
+      color: var(--navy); 
+      background: var(--cream); 
+      transition: var(--transition);
+      width: 100%;
+    }
+    
+    .field input:focus, .field select:focus { 
+      outline: none; 
+      border-color: var(--gold); 
+      background: #fff; 
+      box-shadow: 0 0 0 4px rgba(200,168,75,0.15);
+    }
+    
+    .field input[readonly] { 
+      background: #f0f2f5; 
+      color: #555; 
+      cursor: default;
+    }
+    
+    .field input.error {
+      border-color: var(--red);
+      background: #fff5f5;
+    }
+    
+    .input-with-btn { 
+      display: flex; 
+      gap: 8px; 
+      align-items: center; 
+    }
+    
+    .input-with-btn input { 
+      flex: 1; 
+    }
+    
+    .btn-select { 
+      flex-shrink: 0; 
+      padding: 10px 16px; 
+      background: var(--navy); 
+      color: var(--gold-lt); 
+      border: none; 
+      border-radius: var(--radius); 
+      font-size: 12px; 
+      font-weight: 700; 
+      cursor: pointer; 
+      white-space: nowrap; 
+      transition: var(--transition);
+      letter-spacing: 0.03em;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .btn-select:hover { 
+      background: var(--navy2);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-sm);
+    }
+    
+    /* LEYENDA */
+    .legend { 
+      display: flex; 
+      gap: 24px; 
+      flex-wrap: wrap; 
+      background: linear-gradient(135deg, #f4f7fb 0%, #e8ecf5 100%);
+      border: 2px solid var(--border); 
+      border-radius: var(--radius); 
+      padding: 16px 20px; 
+      font-size: 12px; 
+      margin-bottom: 28px;
+    }
+    
+    .legend strong { 
+      color: var(--navy); 
+      margin-right: 6px; 
+    }
+    
+    .badge { 
+      display: inline-flex; 
+      align-items: center; 
+      gap: 6px; 
+      padding: 4px 10px; 
+      border-radius: 50px; 
+      font-size: 11px; 
+      font-weight: 700;
+      transition: var(--transition);
+    }
+    
+    .badge:hover {
+      transform: scale(1.05);
+    }
+    
+    .badge-dem { background: #fce8e6; color: var(--red); }
+    .badge-red { background: #e8f4fd; color: #1a73b9; }
+    .badge-rec { background: #e6f9ed; color: var(--green); }
+    
+    /* FILTROS Y BÚSQUEDA */
+    .table-controls {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    
+    .search-box {
+      flex: 1;
+      min-width: 200px;
+      position: relative;
+    }
+    
+    .search-box input {
+      width: 100%;
+      padding: 10px 14px 10px 40px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      transition: var(--transition);
+      background: var(--cream) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238a99b0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='M21 21l-4.35-4.35'/%3E%3C/svg%3E") no-repeat 12px center;
+    }
+    
+    .search-box input:focus {
+      outline: none;
+      border-color: var(--gold);
+      background-color: #fff;
+      box-shadow: 0 0 0 4px rgba(200,168,75,0.15);
+    }
+    
+    .filter-group {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .filter-btn {
+      padding: 8px 16px;
+      border: 2px solid var(--border);
+      background: #fff;
+      border-radius: 50px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      color: var(--muted);
+    }
+    
+    .filter-btn:hover, .filter-btn.active {
+      border-color: var(--gold);
+      color: var(--navy);
+      background: var(--cream);
+    }
+    
+    /* TABLA */
+    .table-wrap { 
+      overflow-x: auto;
+      border-radius: var(--radius);
+      border: 2px solid var(--border);
+      box-shadow: var(--shadow-sm);
+    }
+    
+    table { 
+      width: 100%; 
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 12px;
+    }
+    
+    thead tr:first-child th { 
+      background: linear-gradient(135deg, var(--navy2) 0%, var(--navy) 100%);
+      color: #fff; 
+      padding: 12px 8px; 
+      font-weight: 700; 
+      letter-spacing: 0.04em; 
+      font-size: 11px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    
+    thead tr:first-child th:first-child {
+      border-top-left-radius: var(--radius);
+    }
+    
+    thead tr:first-child th:last-child {
+      border-top-right-radius: var(--radius);
+    }
+    
+    thead tr:nth-child(2) th { 
+      background: #e8ecf5; 
+      color: var(--navy); 
+      font-weight: 700; 
+      padding: 8px 6px;
+      font-size: 11px;
+    }
+    
+    thead tr:nth-child(2) th.th-dem { 
+      background: linear-gradient(135deg, #fce8e6 0%, #f5d5d1 100%);
+      color: var(--red); 
+    }
+    
+    thead tr:nth-child(2) th.th-red { 
+      background: linear-gradient(135deg, #e0eefc 0%, #d0e4f7 100%);
+      color: #1a73b9; 
+    }
+    
+    thead tr:nth-child(2) th.th-rec { 
+      background: linear-gradient(135deg, #e2f5e9 0%, #d0ecd9 100%);
+      color: var(--green); 
+    }
+    
+    tbody tr { 
+      transition: var(--transition);
+    }
+    
+    tbody tr:nth-child(even) { 
+      background: #f9fafc; 
+    }
+    
+    tbody tr:hover { 
+      background: #f0f5ff;
+      transform: scale(1.002);
+    }
+    
+    tbody tr.hidden {
+      display: none;
+    }
+    
+    td { 
+      border: 1px solid #dce3ed; 
+      padding: 8px 6px; 
+      vertical-align: middle; 
+      text-align: center;
+      transition: var(--transition);
+    }
+    
+    td.num { 
+      font-weight: 700; 
+      color: var(--muted); 
+      width: 32px;
+      background: #f8f9fa;
+    }
+    
+    td input[type="date"] { 
+      border: 2px solid var(--border); 
+      border-radius: 6px; 
+      padding: 6px 8px; 
+      font-size: 11px; 
+      font-family: inherit; 
+      background: var(--cream); 
+      color: var(--navy); 
+      width: 130px; 
+      transition: var(--transition);
+    }
+    
+    td input[type="date"]:focus { 
+      outline: none; 
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(200,168,75,0.15);
+    }
+    
+    td input[type="checkbox"] { 
+      width: 20px; 
+      height: 20px; 
+      cursor: pointer; 
+      accent-color: var(--navy);
+      transition: var(--transition);
+    }
+    
+    td input[type="checkbox"]:hover {
+      transform: scale(1.1);
+    }
+    
+    td.check-dem input[type="checkbox"] { accent-color: var(--red); }
+    td.check-red input[type="checkbox"] { accent-color: #1a73b9; }
+    td.check-rec input[type="checkbox"] { accent-color: var(--green); }
+    
+    td textarea, td input[type="text"].inline { 
+      border: 2px solid var(--border); 
+      border-radius: 6px; 
+      padding: 6px 8px; 
+      font-size: 11px; 
+      font-family: inherit; 
+      background: transparent; 
+      resize: none; 
+      width: 100%; 
+      min-height: 36px; 
+      transition: var(--transition);
+    }
+    
+    td textarea:focus, td input[type="text"].inline:focus { 
+      outline: none; 
+      border-color: var(--gold); 
+      background: #fffdf5;
+      box-shadow: 0 0 0 3px rgba(200,168,75,0.15);
+    }
+    
+    td.desc textarea { 
+      min-height: 40px; 
+      width: 150px; 
+    }
+    
+    td.del-cell button { 
+      background: none; 
+      border: none; 
+      color: #ccc; 
+      font-size: 18px; 
+      cursor: pointer; 
+      padding: 6px 8px; 
+      border-radius: 6px; 
+      transition: var(--transition);
+      line-height: 1;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    td.del-cell button:hover { 
+      color: var(--red); 
+      background: #fce8e6;
+      transform: scale(1.1);
+    }
+    
+    /* PROGRESO */
+    .progress-wrap { 
+      margin: 0 0 28px; 
+    }
+    
+    .progress-label { 
+      display: flex; 
+      justify-content: space-between; 
+      font-size: 12px; 
+      font-weight: 600; 
+      color: var(--muted); 
+      margin-bottom: 8px;
+    }
+    
+    .progress-bar-bg { 
+      background: #e8ecf5; 
+      border-radius: 50px; 
+      height: 12px; 
+      overflow: hidden;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .progress-bar { 
+      height: 100%; 
+      border-radius: 50px; 
+      transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1), background 0.4s;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .progress-bar::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      animation: shimmer 2s infinite;
+    }
+    
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    
+    /* RESUMEN */
+    .summary { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
+      gap: 16px; 
+      margin: 28px 0; 
+    }
+    
+    .stat-card { 
+      border-radius: 12px; 
+      padding: 20px; 
+      text-align: center; 
+      position: relative; 
+      overflow: hidden; 
+      transition: var(--transition);
+      cursor: pointer;
+      border: 2px solid transparent;
+    }
+    
+    .stat-card:hover { 
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-md);
+    }
+    
+    .stat-card.active {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 4px rgba(200,168,75,0.2);
+    }
+    
+    .stat-card::before { 
+      content: ''; 
+      position: absolute; 
+      inset: 0; 
+      opacity: 0.07; 
+      background: repeating-linear-gradient(45deg, #fff 0, #fff 2px, transparent 2px, transparent 8px); 
+    }
+    
+    .stat-card .val { 
+      font-family: 'DM Serif Display', serif; 
+      font-size: 48px; 
+      line-height: 1;
+      transition: var(--transition);
+    }
+    
+    .stat-card:hover .val {
+      transform: scale(1.1);
+    }
+    
+    .stat-card .lbl { 
+      font-size: 12px; 
+      font-weight: 600; 
+      margin-top: 8px; 
+      letter-spacing: 0.04em; 
+      text-transform: uppercase; 
+      opacity: 0.85; 
+    }
+    
+    .stat-dem { background: linear-gradient(135deg, #fce8e6 0%, #f5d5d1 100%); color: var(--red); }
+    .stat-red { background: linear-gradient(135deg, #e0eefc 0%, #d0e4f7 100%); color: #1a73b9; }
+    .stat-net { background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%); color: #fff; }
+    .stat-rec { background: linear-gradient(135deg, #e2f5e9 0%, #d0ecd9 100%); color: var(--green); }
+    
+    /* SANCIÓN */
+    .sanction { 
+      border-radius: 12px; 
+      padding: 18px 24px; 
+      display: flex; 
+      align-items: center; 
+      gap: 16px; 
+      margin-bottom: 28px; 
+      font-weight: 600; 
+      font-size: 15px; 
+      transition: var(--transition);
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(0,0,0,0.1); }
+      50% { box-shadow: 0 0 0 8px rgba(0,0,0,0); }
+    }
+    
+    .sanction-icon { 
+      font-size: 32px; 
+      flex-shrink: 0; 
+      animation: bounce 1s infinite;
+    }
+    
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+    
+    .sanction-text { 
+      line-height: 1.5; 
+      flex: 1;
+    }
+    
+    .sanction-text small { 
+      display: block; 
+      font-size: 12px; 
+      font-weight: 400; 
+      opacity: 0.8; 
+      margin-top: 4px; 
+    }
+    
+    .s-none { background: linear-gradient(135deg, #e6f9ed 0%, #d0ecd9 100%); color: var(--green); animation: none; }
+    .s-warn { background: linear-gradient(135deg, #fef9e7 0%, #fcf3cf 100%); color: #b7950b; }
+    .s-comms { background: linear-gradient(135deg, #fef2e0 0%, #fdebd0 100%); color: var(--orange); }
+    .s-susp { background: linear-gradient(135deg, #fce8e6 0%, #f5d5d1 100%); color: var(--red); }
+    .s-noprom { background: linear-gradient(135deg, var(--red) 0%, #a93226 100%); color: #fff; }
+    
+    /* FIRMA */
+    .firma-section { 
+      margin-top: 40px; 
+      padding-top: 28px; 
+      border-top: 2px solid var(--border); 
+      display: flex; 
+      justify-content: center; 
+    }
+    
+    .firma-box { 
+      text-align: center; 
+      min-width: 320px; 
+    }
+    
+    .firma-line { 
+      border-top: 2px solid var(--navy); 
+      padding-top: 12px; 
+      font-size: 12px; 
+      font-weight: 600; 
+      color: var(--navy);
+      letter-spacing: 0.02em;
+    }
+    
+    /* MODAL ESTUDIANTE */
+    .modal-overlay { 
+      position: fixed; 
+      inset: 0; 
+      background: rgba(10,20,40,0.75); 
+      backdrop-filter: blur(6px); 
+      z-index: 1000; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      opacity: 0; 
+      pointer-events: none; 
+      transition: opacity 0.3s ease;
+    }
+    
+    .modal-overlay.open { 
+      opacity: 1; 
+      pointer-events: all; 
+    }
+    
+    .modal { 
+      background: #fff; 
+      border-radius: 16px; 
+      width: 560px; 
+      max-width: 95vw; 
+      max-height: 85vh; 
+      display: flex; 
+      flex-direction: column; 
+      box-shadow: 0 32px 80px rgba(0,0,0,0.5); 
+      transform: translateY(24px) scale(0.95); 
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); 
+      overflow: hidden; 
+    }
+    
+    .modal-overlay.open .modal { 
+      transform: translateY(0) scale(1); 
+    }
+    
+    .modal-header { 
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%);
+      padding: 20px 24px; 
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between; 
+      border-bottom: 3px solid var(--gold); 
+      flex-shrink: 0; 
+    }
+    
+    .modal-header h3 { 
+      font-family: 'DM Serif Display', serif; 
+      color: #fff; 
+      font-size: 20px; 
+      letter-spacing: 0.02em; 
+    }
+    
+    .modal-header p { 
+      color: var(--gold-lt); 
+      font-size: 12px; 
+      margin-top: 4px; 
+    }
+    
+    .modal-close { 
+      background: rgba(255,255,255,0.12); 
+      border: none; 
+      color: #fff; 
+      font-size: 20px; 
+      width: 36px; 
+      height: 36px; 
+      border-radius: 50%; 
+      cursor: pointer; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      transition: var(--transition);
+      flex-shrink: 0; 
+    }
+    
+    .modal-close:hover { 
+      background: rgba(255,255,255,0.25);
+      transform: rotate(90deg);
+    }
+    
+    .modal-search-wrap { 
+      padding: 16px 20px 12px; 
+      flex-shrink: 0; 
+      border-bottom: 2px solid var(--border); 
+    }
+    
+    .modal-search { 
+      width: 100%; 
+      border: 2px solid var(--border); 
+      border-radius: 50px; 
+      padding: 12px 18px 12px 44px; 
+      font-family: 'DM Sans', sans-serif; 
+      font-size: 14px; 
+      color: var(--navy); 
+      background: var(--cream) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238a99b0' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='M21 21l-4.35-4.35'/%3E%3C/svg%3E") no-repeat 16px center; 
+      transition: var(--transition);
+    }
+    
+    .modal-search:focus { 
+      outline: none; 
+      border-color: var(--gold); 
+      box-shadow: 0 0 0 4px rgba(200,168,75,0.15); 
+      background-color: #fff; 
+    }
+    
+    .modal-list { 
+      overflow-y: auto; 
+      flex: 1; 
+      padding: 12px; 
+    }
+    
+    .modal-item { 
+      display: flex; 
+      align-items: center; 
+      gap: 16px; 
+      padding: 14px 16px; 
+      border-radius: 10px; 
+      cursor: pointer; 
+      transition: var(--transition);
+      border: 2px solid transparent; 
+      margin-bottom: 8px;
+    }
+    
+    .modal-item:hover { 
+      background: #f0f5ff; 
+      border-color: #c8d8f8;
+      transform: translateX(4px);
+    }
+    
+    .modal-item.selected { 
+      background: #e8f0fe; 
+      border-color: var(--gold);
+    }
+    
+    .modal-num { 
+      width: 32px; 
+      height: 32px; 
+      border-radius: 50%; 
+      background: var(--navy); 
+      color: #fff; 
+      font-size: 12px; 
+      font-weight: 700; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      flex-shrink: 0;
+      transition: var(--transition);
+    }
+    
+    .modal-item:hover .modal-num {
+      background: var(--gold);
+      color: var(--navy);
+    }
+    
+    .modal-info { 
+      flex: 1; 
+    }
+    
+    .modal-info .est-name { 
+      font-size: 14px; 
+      font-weight: 600; 
+      color: var(--navy); 
+      letter-spacing: 0.01em; 
+    }
+    
+    .modal-info .est-nie { 
+      font-size: 12px; 
+      color: var(--muted); 
+      margin-top: 2px; 
+    }
+    
+    .modal-no-results { 
+      text-align: center; 
+      color: var(--muted); 
+      font-size: 14px; 
+      padding: 40px 0; 
+    }
+    
+    /* MODALES CONFIRMACIÓN */
+    .confirm-overlay { 
+      position: fixed; 
+      inset: 0; 
+      background: rgba(10,20,40,0.65); 
+      backdrop-filter: blur(4px); 
+      z-index: 1100; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      opacity: 0; 
+      pointer-events: none; 
+      transition: opacity 0.3s ease;
+    }
+    
+    .confirm-overlay.open { 
+      opacity: 1; 
+      pointer-events: all; 
+    }
+    
+    .confirm-box { 
+      background: #fff; 
+      border-radius: 16px; 
+      width: 460px; 
+      max-width: 94vw; 
+      box-shadow: 0 32px 80px rgba(0,0,0,0.4); 
+      overflow: hidden; 
+      transform: scale(0.9) translateY(20px); 
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); 
+    }
+    
+    .confirm-overlay.open .confirm-box { 
+      transform: scale(1) translateY(0); 
+    }
+    
+    .confirm-header { 
+      padding: 20px 24px 16px; 
+      border-bottom: 3px solid; 
+    }
+    
+    .confirm-header.red-theme { 
+      background: linear-gradient(135deg, #1a6fa0 0%, #145a84 100%);
+      border-color: #4fb3e8; 
+    }
+    
+    .confirm-header.rec-theme { 
+      background: linear-gradient(135deg, #1a7a3e 0%, #145a2e 100%);
+      border-color: #4cca7a; 
+    }
+    
+    .confirm-header h3 { 
+      font-family: 'DM Serif Display', serif; 
+      color: #fff; 
+      font-size: 18px; 
+    }
+    
+    .confirm-header p { 
+      color: rgba(255,255,255,0.8); 
+      font-size: 12px; 
+      margin-top: 4px; 
+    }
+    
+    .confirm-body { 
+      padding: 24px; 
+    }
+    
+    .confirm-item { 
+      display: flex; 
+      align-items: flex-start; 
+      gap: 14px; 
+      padding: 16px; 
+      border-radius: 10px; 
+      margin-bottom: 12px; 
+      border: 2px solid var(--border); 
+      background: #f8fafd; 
+      transition: var(--transition);
+    }
+    
+    .confirm-item:hover {
+      border-color: var(--gold);
+      background: #fffdf5;
+    }
+    
+    .confirm-letter { 
+      width: 36px; 
+      height: 36px; 
+      border-radius: 50%; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      font-weight: 800; 
+      font-size: 14px; 
+      flex-shrink: 0; 
+      margin-top: 2px;
+      transition: var(--transition);
+    }
+    
+    .red-theme-letter { 
+      background: linear-gradient(135deg, #1a6fa0 0%, #145a84 100%);
+      color: #fff; 
+    }
+    
+    .rec-theme-letter { 
+      background: linear-gradient(135deg, #1a7a3e 0%, #145a2e 100%);
+      color: #fff; 
+    }
+    
+    .confirm-item-text { 
+      font-size: 14px; 
+      color: var(--navy); 
+      line-height: 1.6; 
+    }
+    
+    .confirm-footer { 
+      padding: 16px 24px 20px; 
+      display: flex; 
+      gap: 12px; 
+      justify-content: flex-end; 
+      border-top: 2px solid var(--border); 
+    }
+    
+    .btn-cancel-c { 
+      padding: 10px 24px; 
+      border: 2px solid var(--border); 
+      border-radius: 50px; 
+      background: #fff; 
+      color: var(--muted); 
+      font-family: 'DM Sans', sans-serif; 
+      font-size: 13px; 
+      font-weight: 600; 
+      cursor: pointer; 
+      transition: var(--transition);
+    }
+    
+    .btn-cancel-c:hover { 
+      background: #f0f2f5;
+      border-color: var(--muted);
+      color: var(--navy);
+    }
+    
+    .btn-confirm-red { 
+      padding: 10px 24px; 
+      border: none; 
+      border-radius: 50px; 
+      background: linear-gradient(135deg, #1a6fa0 0%, #145a84 100%);
+      color: #fff; 
+      font-family: 'DM Sans', sans-serif; 
+      font-size: 13px; 
+      font-weight: 700; 
+      cursor: pointer; 
+      transition: var(--transition);
+      box-shadow: 0 4px 12px rgba(26, 111, 160, 0.3);
+    }
+    
+    .btn-confirm-red:hover { 
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(26, 111, 160, 0.4);
+    }
+    
+    .btn-confirm-rec { 
+      padding: 10px 24px; 
+      border: none; 
+      border-radius: 50px; 
+      background: linear-gradient(135deg, #1a7a3e 0%, #145a2e 100%);
+      color: #fff; 
+      font-family: 'DM Sans', sans-serif; 
+      font-size: 13px; 
+      font-weight: 700; 
+      cursor: pointer; 
+      transition: var(--transition);
+      box-shadow: 0 4px 12px rgba(26, 122, 62, 0.3);
+    }
+    
+    .btn-confirm-rec:hover { 
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(26, 122, 62, 0.4);
+    }
+    
+    /* TOAST NOTIFICATIONS */
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .toast {
+      background: #fff;
+      border-radius: 12px;
+      padding: 16px 20px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 300px;
+      animation: slideInRight 0.4s ease;
+      border-left: 4px solid var(--gold);
+    }
+    
+    @keyframes slideInRight {
+      from {
+        opacity: 0;
+        transform: translateX(100%);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+    
+    .toast.success { border-left-color: var(--green); }
+    .toast.error { border-left-color: var(--red); }
+    .toast.warning { border-left-color: var(--orange); }
+    
+    .toast-icon {
+      font-size: 24px;
+    }
+    
+    .toast-content {
+      flex: 1;
+    }
+    
+    .toast-title {
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--navy);
+    }
+    
+    .toast-message {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    
+    .toast-close {
+      background: none;
+      border: none;
+      font-size: 18px;
+      color: var(--muted);
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+      transition: var(--transition);
+    }
+    
+    .toast-close:hover {
+      background: #f0f2f5;
+      color: var(--navy);
+    }
+    
+    /* EMPTY STATE */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+    }
+    
+    .empty-state-icon {
+      font-size: 64px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+    
+    .empty-state-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 8px;
+    }
+    
+    .empty-state-text {
+      font-size: 14px;
+    }
+    
+    /* PRINT */
+    @media print {
+      body { 
+        background: #fff; 
+        padding: 0; 
+      }
+      
+      .toolbar, .toast-container, .table-controls, .del-cell, .btn-select { 
+        display: none !important; 
+      }
+      
+      .documento { 
+        max-width: 100%; 
+        box-shadow: none; 
+        border-radius: 0;
+        animation: none;
+      }
+      
+      .sanction {
+        animation: none;
+      }
+      
+      .progress-bar::after {
+        display: none;
+      }
+    }
+    
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .doc-body { 
+        padding: 20px; 
+      }
+      
+      .header { 
+        padding: 20px;
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+      
+      .logo-circle {
+        display: none;
+      }
+      
+      .field.wide { 
+        grid-column: span 1; 
+      }
+      
+      .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .toolbar h1 {
+        text-align: center;
+        margin-bottom: 12px;
+      }
+      
+      .btn-group {
+        justify-content: center;
+      }
+      
+      .summary {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .stat-card .val {
+        font-size: 36px;
+      }
+      
+      .legend {
+        flex-direction: column;
+        gap: 12px;
+      }
+      
+      .table-controls {
+        flex-direction: column;
+      }
+      
+      .search-box {
+        width: 100%;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .summary {
+        grid-template-columns: 1fr;
+      }
+      
+      .btn-group {
+        flex-direction: column;
+      }
+      
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+    
+    /* SCROLLBAR STYLING */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: var(--muted);
+      border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--navy);
+    }
+    
+    /* LOADING SPINNER */
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 1s ease-in-out infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
 </head>
 <body>
 
-<!-- TOOLBAR -->
-<div class="toolbar">
-  <h1>Tarjeta de Deméritos</h1>
-  <button class="btn btn-add"   onclick="agregarFila()">➕ Agregar fila</button>
-  <button class="btn btn-pdf"   id="btnPDF" onclick="exportarPDF()">💾 Guardar PDF</button>
-  <button class="btn btn-print" onclick="window.print()">🖨️ Imprimir</button>
-  <button class="btn btn-clear" onclick="limpiarFormulario()">🗑️ Limpiar</button>
-</div>
+  <!-- TOAST CONTAINER -->
+  <div class="toast-container" id="toastContainer"></div>
 
-<!-- DOCUMENTO -->
-<div class="documento" id="contenidoPDF">
-  <div class="header">
-    <div class="logo-circle">Logo<br>C.E.</div>
-    <div class="header-center">
-      <h2>Instrumento No. 001</h2>
-      <div class="sub">Tarjeta de Deméritos del Estudiante</div>
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <h1>📋 Tarjeta de Deméritos</h1>
+    <div class="btn-group">
+      <button class="btn btn-add" onclick="app.addRow()" title="Agregar nueva fila (Ctrl+N)">
+        <span>➕</span> Agregar fila
+      </button>
+      <button class="btn btn-undo" onclick="app.undo()" title="Deshacer última acción (Ctrl+Z)">
+        <span>↩️</span> Deshacer
+      </button>
+      <button class="btn btn-pdf" id="btnPDF" onclick="app.exportPDF()" title="Guardar como PDF">
+        <span>💾</span> Guardar PDF
+      </button>
+      <button class="btn btn-excel" onclick="app.exportExcel()" title="Exportar a Excel">
+        <span>📊</span> Excel
+      </button>
+      <button class="btn btn-print" onclick="window.print()" title="Imprimir documento">
+        <span>🖨️</span> Imprimir
+      </button>
+      <button class="btn btn-clear" onclick="app.clearForm()" title="Limpiar todo el formulario">
+        <span>🗑️</span> Limpiar
+      </button>
     </div>
-    <div class="logo-circle">Escudo<br>Inst.</div>
   </div>
 
-  <div class="doc-body">
-
-    <!-- CENTRO EDUCATIVO -->
-    <div class="section">
-      <div class="section-title"><span>📋</span> Información del Centro Educativo</div>
-      <div class="info-grid">
-        <div class="field wide"><label>Centro Educativo</label><input type="text" value="COMPLEJO EDUCATIVO CANTÓN SAN ISIDRO" readonly></div>
-        <div class="field"><label>Código</label><input type="text" value="70056" readonly></div>
-        <div class="field"><label>Departamento</label><input type="text" value="SAN SALVADOR" readonly></div>
-        <div class="field"><label>Municipio</label><input type="text" value="PANCHIMALCO" readonly></div>
-        <div class="field"><label>Distrito</label><input type="text" value="06-14" readonly></div>
+  <!-- DOCUMENTO -->
+  <div class="documento" id="contenidoPDF">
+    <div class="header">
+      <div class="logo-circle">Logo<br>C.E.</div>
+      <div class="header-center">
+        <h2>Instrumento No. 001</h2>
+        <div class="sub">Tarjeta de Deméritos del Estudiante</div>
       </div>
+      <div class="logo-circle">Escudo<br>Inst.</div>
     </div>
 
-    <!-- ESTUDIANTE -->
-    <div class="section">
-      <div class="section-title"><span>👤</span> Información del Estudiante</div>
-      <div class="info-grid">
-        <div class="field wide">
-          <label>Nombre completo</label>
-          <div class="input-with-btn">
-            <input type="text" id="nombreEstudiante" placeholder="Seleccione de la lista" autocomplete="off" readonly style="cursor:default;">
-            <button class="btn-select" onclick="abrirModal()">👥 Seleccionar</button>
+    <div class="doc-body">
+
+      <!-- CENTRO EDUCATIVO -->
+      <div class="section">
+        <div class="section-title"><span>🏫</span> Información del Centro Educativo</div>
+        <div class="info-grid">
+          <div class="field wide">
+            <label>Centro Educativo</label>
+            <input type="text" value="COMPLEJO EDUCATIVO CANTÓN SAN ISIDRO" readonly>
+          </div>
+          <div class="field">
+            <label>Código</label>
+            <input type="text" value="70056" readonly>
+          </div>
+          <div class="field">
+            <label>Departamento</label>
+            <input type="text" value="SAN SALVADOR" readonly>
+          </div>
+          <div class="field">
+            <label>Municipio</label>
+            <input type="text" value="PANCHIMALCO" readonly>
+          </div>
+          <div class="field">
+            <label>Distrito</label>
+            <input type="text" value="06-14" readonly>
           </div>
         </div>
-        <div class="field"><label>NIE</label><input type="text" id="nie" placeholder="Número de IE"></div>
-        <div class="field">
-          <label>Sexo</label>
-          <select id="sexo"><option value="">Seleccione</option><option>Mujer</option><option>Hombre</option></select>
+      </div>
+
+      <!-- ESTUDIANTE -->
+      <div class="section">
+        <div class="section-title"><span>👤</span> Información del Estudiante</div>
+        <div class="info-grid">
+          <div class="field wide">
+            <label>Nombre completo <span class="required">*</span></label>
+            <div class="input-with-btn">
+              <input type="text" id="nombreEstudiante" placeholder="Seleccione de la lista" autocomplete="off" readonly>
+              <button class="btn-select" onclick="app.openStudentModal()">
+                <span>👥</span> Seleccionar
+              </button>
+            </div>
+          </div>
+          <div class="field">
+            <label>NIE <span class="required">*</span></label>
+            <input type="text" id="nie" placeholder="Número de IE" readonly>
+          </div>
+          <div class="field">
+            <label>Sexo</label>
+            <select id="sexo">
+              <option value="">Seleccione</option>
+              <option value="Mujer">Mujer</option>
+              <option value="Hombre">Hombre</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Grado / Sección</label>
+            <input type="text" id="grado" placeholder="Ej: 9°A">
+          </div>
+          <div class="field">
+            <label>Turno</label>
+            <select id="turno">
+              <option value="">Seleccione</option>
+              <option value="Matutino">Matutino</option>
+              <option value="Vespertino">Vespertino</option>
+              <option value="Nocturno">Nocturno</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Año lectivo</label>
+            <input type="text" id="anio" placeholder="Ej: 2025">
+          </div>
         </div>
-        <div class="field"><label>Grado / Sección</label><input type="text" id="grado" placeholder="Ej: 9°A"></div>
-        <div class="field">
-          <label>Turno</label>
-          <select id="turno"><option value="">Seleccione</option><option>Matutino</option><option>Vespertino</option><option>Nocturno</option></select>
+      </div>
+
+      <!-- LEYENDA -->
+      <div class="legend">
+        <div>
+          <span class="badge badge-dem">D A–D</span>
+          <strong>Deméritos</strong> — Falta que suma puntos negativos
         </div>
-        <div class="field"><label>Año lectivo</label><input type="text" id="anio" placeholder="Ej: 2025"></div>
+        <div>
+          <span class="badge badge-red">R A–C</span>
+          <strong>Redención</strong> — Acción positiva que descuenta deméritos
+        </div>
+        <div>
+          <span class="badge badge-rec">RC A–B</span>
+          <strong>Reconocimiento</strong> — Mérito destacado (no descuenta)
+        </div>
+      </div>
+
+      <!-- TABLA -->
+      <div class="section">
+        <div class="section-title"><span>📊</span> Registro de Deméritos y Reconocimientos</div>
+        
+        <!-- Controles de tabla -->
+        <div class="table-controls">
+          <div class="search-box">
+            <input type="text" id="tableSearch" placeholder="Buscar en la tabla..." oninput="app.filterTable()">
+          </div>
+          <div class="filter-group">
+            <button class="filter-btn active" onclick="app.setFilter('all')" data-filter="all">Todos</button>
+            <button class="filter-btn" onclick="app.setFilter('dem')" data-filter="dem">Deméritos</button>
+            <button class="filter-btn" onclick="app.setFilter('red')" data-filter="red">Redenciones</button>
+            <button class="filter-btn" onclick="app.setFilter('rec')" data-filter="rec">Reconocimientos</button>
+          </div>
+        </div>
+        
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th rowspan="2">#</th>
+                <th rowspan="2">Fecha</th>
+                <th rowspan="2">Descripción</th>
+                <th colspan="4" style="background: linear-gradient(135deg, #b03a2e 0%, #922b21 100%);">Deméritos (D)</th>
+                <th colspan="3" style="background: linear-gradient(135deg, #1a6fa0 0%, #145a84 100%);">Redención (R)</th>
+                <th colspan="2" style="background: linear-gradient(135deg, #1a7a3e 0%, #145a2e 100%);">Reconoc. (RC)</th>
+                <th rowspan="2">Docente</th>
+                <th rowspan="2">Firma padre</th>
+                <th rowspan="2">Firma estudiante</th>
+                <th rowspan="2" class="del-cell"></th>
+              </tr>
+              <tr>
+                <th class="th-dem">A</th>
+                <th class="th-dem">B</th>
+                <th class="th-dem">C</th>
+                <th class="th-dem">D</th>
+                <th class="th-red">A</th>
+                <th class="th-red">B</th>
+                <th class="th-red">C</th>
+                <th class="th-rec">A</th>
+                <th class="th-rec">B</th>
+              </tr>
+            </thead>
+            <tbody id="tabla"></tbody>
+          </table>
+        </div>
+        
+        <!-- Empty state (hidden by default) -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+          <div class="empty-state-icon">📋</div>
+          <div class="empty-state-title">No hay registros</div>
+          <div class="empty-state-text">Haga clic en "Agregar fila" para comenzar a registrar deméritos, redenciones o reconocimientos.</div>
+        </div>
+      </div>
+
+      <!-- PROGRESO -->
+      <div class="progress-wrap">
+        <div class="progress-label">
+          <span>Progreso de deméritos netos</span>
+          <span id="progressLabel">0 / 15</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar" id="progressBar" style="width: 0%; background: #27ae60;"></div>
+        </div>
+      </div>
+
+      <!-- RESUMEN -->
+      <div class="summary">
+        <div class="stat-card stat-dem" onclick="app.setFilter('dem')" title="Ver solo deméritos">
+          <div class="val" id="totalDem">0</div>
+          <div class="lbl">Deméritos totales</div>
+        </div>
+        <div class="stat-card stat-red" onclick="app.setFilter('red')" title="Ver solo redenciones">
+          <div class="val" id="totalRed">0</div>
+          <div class="lbl">Redenciones</div>
+        </div>
+        <div class="stat-card stat-net" onclick="app.setFilter('all')" title="Ver todos">
+          <div class="val" id="totalNet">0</div>
+          <div class="lbl">Deméritos netos</div>
+        </div>
+        <div class="stat-card stat-rec" onclick="app.setFilter('rec')" title="Ver solo reconocimientos">
+          <div class="val" id="totalRec">0</div>
+          <div class="lbl">Reconocimientos</div>
+        </div>
+      </div>
+
+      <!-- SANCIÓN -->
+      <div class="sanction s-none" id="sancion">
+        <div class="sanction-icon">✅</div>
+        <div class="sanction-text">
+          Sin sanción acumulada
+          <small>0 deméritos netos — continúe observando la conducta del estudiante</small>
+        </div>
+      </div>
+
+      <!-- FIRMA -->
+      <div class="firma-section">
+        <div class="firma-box">
+          <div style="height: 60px;"></div>
+          <div class="firma-line">Nombre, firma y sello del Director(a) del C.E.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL ESTUDIANTE -->
+  <div class="modal-overlay" id="modalOverlay" onclick="app.closeModalOverlay(event)">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <div>
+          <h3>Seleccionar Estudiante</h3>
+          <p>Haga clic en un nombre para autocompletar el formulario</p>
+        </div>
+        <button class="modal-close" onclick="app.closeStudentModal()">✕</button>
+      </div>
+      <div class="modal-search-wrap">
+        <input type="text" class="modal-search" id="modalSearch" placeholder="Buscar por nombre o NIE..." oninput="app.filterStudents()" autocomplete="off">
+      </div>
+      <div class="modal-list" id="modalList"></div>
+    </div>
+  </div>
+
+  <!-- MODAL CONFIRMACIÓN REDENCIÓN -->
+  <div class="confirm-overlay" id="confirmRedOverlay">
+    <div class="confirm-box">
+      <div class="confirm-header red-theme">
+        <h3>✔ Confirmar Redención</h3>
+        <p>¿Desea registrar la siguiente acción de redención?</p>
+      </div>
+      <div class="confirm-body" id="confirmRedBody"></div>
+      <div class="confirm-footer">
+        <button class="btn-cancel-c" onclick="app.cancelConfirm('red')">Cancelar</button>
+        <button class="btn-confirm-red" onclick="app.acceptConfirm('red')">✔ Confirmar</button>
       </div>
     </div>
+  </div>
 
-    <!-- LEYENDA -->
-    <div class="legend">
-      <div><span class="badge badge-dem">D A–D</span> <strong>Deméritos</strong> — Falta que suma puntos negativos</div>
-      <div><span class="badge badge-red">R A–C</span> <strong>Redención</strong> — Acción positiva que descuenta deméritos</div>
-      <div><span class="badge badge-rec">RC A–B</span> <strong>Reconocimiento</strong> — Mérito destacado (no descuenta)</div>
-    </div>
-
-    <!-- TABLA -->
-    <div class="section">
-      <div class="section-title"><span>📊</span> Registro de Deméritos y Reconocimientos</div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th rowspan="2">#</th>
-              <th rowspan="2">Fecha</th>
-              <th rowspan="2">Descripción de la falta / acción</th>
-              <th colspan="4" style="background:#b03a2e;">Deméritos (D)</th>
-              <th colspan="3" style="background:#1a6fa0;">Redención (R)</th>
-              <th colspan="2" style="background:#1a7a3e;">Reconoc. (RC)</th>
-              <th rowspan="2">Docente responsable</th>
-              <th rowspan="2">Firma padre/madre</th>
-              <th rowspan="2">Firma estudiante</th>
-              <th rowspan="2" class="del-cell" style="width:28px;"></th>
-            </tr>
-            <tr>
-              <th class="th-dem">A</th><th class="th-dem">B</th><th class="th-dem">C</th><th class="th-dem">D</th>
-              <th class="th-red">A</th><th class="th-red">B</th><th class="th-red">C</th>
-              <th class="th-rec">A</th><th class="th-rec">B</th>
-            </tr>
-          </thead>
-          <tbody id="tabla"></tbody>
-        </table>
+  <!-- MODAL CONFIRMACIÓN RECONOCIMIENTO -->
+  <div class="confirm-overlay" id="confirmRecOverlay">
+    <div class="confirm-box">
+      <div class="confirm-header rec-theme">
+        <h3>🏅 Confirmar Reconocimiento</h3>
+        <p>¿Desea registrar el siguiente reconocimiento?</p>
+      </div>
+      <div class="confirm-body" id="confirmRecBody"></div>
+      <div class="confirm-footer">
+        <button class="btn-cancel-c" onclick="app.cancelConfirm('rec')">Cancelar</button>
+        <button class="btn-confirm-rec" onclick="app.acceptConfirm('rec')">✔ Confirmar</button>
       </div>
     </div>
-
-    <!-- PROGRESO -->
-    <div class="progress-wrap">
-      <div class="progress-label"><span>Progreso de deméritos netos</span><span id="progressLabel">0 / 15</span></div>
-      <div class="progress-bar-bg"><div class="progress-bar" id="progressBar" style="width:0%;background:#27ae60;"></div></div>
-    </div>
-
-    <!-- RESUMEN -->
-    <div class="summary">
-      <div class="stat-card stat-dem"><div class="val" id="totalDem">0</div><div class="lbl">Deméritos totales</div></div>
-      <div class="stat-card stat-red"><div class="val" id="totalRed">0</div><div class="lbl">Redenciones</div></div>
-      <div class="stat-card stat-net"><div class="val" id="totalNet">0</div><div class="lbl">Deméritos netos</div></div>
-      <div class="stat-card stat-rec"><div class="val" id="totalRec">0</div><div class="lbl">Reconocimientos</div></div>
-    </div>
-
-    <!-- SANCIÓN -->
-    <div class="sanction s-none" id="sancion">
-      <div class="sanction-icon">✅</div>
-      <div class="sanction-text">Sin sanción acumulada<small>0 deméritos netos — continúe observando la conducta del estudiante</small></div>
-    </div>
-
-    <!-- FIRMA -->
-    <div class="firma-section">
-      <div class="firma-box">
-        <div style="height:50px;"></div>
-        <div class="firma-line">Nombre, firma y sello del Director(a) del C.E.</div>
-      </div>
-    </div>
-
   </div>
-</div>
 
-<!-- MODAL ESTUDIANTE -->
-<div class="modal-overlay" id="modalOverlay" onclick="cerrarModalOverlay(event)">
-  <div class="modal" role="dialog" aria-modal="true">
-    <div class="modal-header">
-      <div><h3>Seleccionar Estudiante</h3><p>Haga clic en un nombre para autocompletar el formulario</p></div>
-      <button class="modal-close" onclick="cerrarModal()">✕</button>
-    </div>
-    <div class="modal-search-wrap">
-      <input type="text" class="modal-search" id="modalSearch" placeholder="Buscar por nombre o NIE…" oninput="filtrarEstudiantes()" autocomplete="off">
-    </div>
-    <div class="modal-list" id="modalList"></div>
-  </div>
-</div>
-
-<!-- MODAL CONFIRMACIÓN REDENCIÓN -->
-<div class="confirm-overlay" id="confirmRedOverlay">
-  <div class="confirm-box">
-    <div class="confirm-header red-theme"><h3>✔ Confirmar Redención</h3><p>¿Desea registrar la siguiente acción de redención?</p></div>
-    <div class="confirm-body" id="confirmRedBody"></div>
-    <div class="confirm-footer">
-      <button class="btn-cancel-c"    onclick="cancelarConfirm('red')">Cancelar</button>
-      <button class="btn-confirm-red" onclick="aceptarConfirm('red')">✔ Confirmar</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL CONFIRMACIÓN RECONOCIMIENTO -->
-<div class="confirm-overlay" id="confirmRecOverlay">
-  <div class="confirm-box">
-    <div class="confirm-header rec-theme"><h3>🏅 Confirmar Reconocimiento</h3><p>¿Desea registrar el siguiente reconocimiento?</p></div>
-    <div class="confirm-body" id="confirmRecBody"></div>
-    <div class="confirm-footer">
-      <button class="btn-cancel-c"    onclick="cancelarConfirm('rec')">Cancelar</button>
-      <button class="btn-confirm-rec" onclick="aceptarConfirm('rec')">✔ Confirmar</button>
-    </div>
-  </div>
-</div>
-
-<script>
-/* ── DATOS ─────────────────────────────────────────────── */
-const ESTUDIANTES = [
-  {no:1,  nie:'10192638', nombre:'ACOSTA DEODANES, CAROLINA LISSETH',    sexo:'Mujer'  },
-  {no:2,  nie:'20085229', nombre:'AGUILAR ORTIZ, CESAR ISMAEL',          sexo:'Hombre' },
-  {no:3,  nie:'20085270', nombre:'BENITEZ PEREZ, OSCAR EFRAIN',          sexo:'Hombre' },
-  {no:4,  nie:'20085307', nombre:'CARRILLO VENTURA, RUTH NOEMY',         sexo:'Mujer'  },
-  {no:5,  nie:'19933288', nombre:'CASTRO ORTIZ, JAZMIN SARAI',           sexo:'Mujer'  },
-  {no:6,  nie:'20008551', nombre:'CORNEJO ORTIZ, PAMELA GUADALUPE',      sexo:'Mujer'  },
-  {no:7,  nie:'19933292', nombre:'CRUZ GARCÍA, JHAMILTON GEOVANY',       sexo:'Hombre' },
-  {no:8,  nie:'10380636', nombre:'CRUZ VEGA, JUANA ELENA',               sexo:'Mujer'  },
-  {no:9,  nie:'20085334', nombre:'DEODANES JORGE, DAVID ALEXANDER',      sexo:'Hombre' },
-  {no:10, nie:'20161320', nombre:'DEODANES PÉREZ, CARLOS DANIEL',        sexo:'Hombre' },
-  {no:11, nie:'19933320', nombre:'DEODANES RODRIGUEZ, WILLIAN LEONEL',   sexo:'Hombre' },
-  {no:12, nie:'20161321', nombre:'DEODANES SANTOS, KATHERIN MARITZA',    sexo:'Mujer'  },
-  {no:13, nie:'20116603', nombre:'JORGE BENITEZ, XAVIER ERNESTO',        sexo:'Hombre' },
-  {no:14, nie:'20116605', nombre:'LEON RODRIGUEZ, JEFFERSON ALEXIS',     sexo:'Hombre' },
-  {no:15, nie:'20116607', nombre:'MARTINEZ PEREZ, MANUEL ENRIQUE',       sexo:'Hombre' },
-  {no:16, nie:'20116608', nombre:'MARTINEZ VASQUEZ, ANDERSON MAURICIO',  sexo:'Hombre' },
-  {no:17, nie:'20161327', nombre:'MARTÍNEZ MIRANDA, JOSÉ BRYAN',         sexo:'Hombre' },
-  {no:18, nie:'20116614', nombre:'MENDEZ PEREZ, JORGE ERNESTO',          sexo:'Hombre' },
-  {no:19, nie:'19964662', nombre:'ORTIZ MARTÍNEZ, JOSELYN ROXANA',       sexo:'Mujer'  },
-  {no:20, nie:'20116635', nombre:'PEREZ JACINTO, ROSIBEL',               sexo:'Mujer'  },
-  {no:21, nie:'19964672', nombre:'PÉREZ DEODANES, ISAÍAS ARMANDO',       sexo:'Hombre' },
-  {no:22, nie:'20116666', nombre:'VASQUEZ BENITES, DORIS ESTEFANNY',     sexo:'Mujer'  },
-  {no:23, nie:'20116669', nombre:'VASQUEZ MARTINEZ, NELSON ANTONIO',     sexo:'Hombre' },
-  {no:24, nie:'20116683', nombre:'VENITES RODRIGUEZ, SERGIO JAVIER',     sexo:'Hombre' },
-];
-
-const SANCIONES = [
-  {min:15, cls:'s-noprom', icon:'🚫', titulo:'No promoción de grado',      sub:'15 o más deméritos netos — consecuencia máxima'},
-  {min:10, cls:'s-susp',   icon:'⛔', titulo:'Suspensión de privilegios',   sub:'10–14 deméritos netos — revisar con dirección'},
-  {min:6,  cls:'s-comms',  icon:'📞', titulo:'Comunicación a la familia',   sub:'6–9 deméritos netos — citar al padre/madre o responsable'},
-  {min:3,  cls:'s-warn',   icon:'⚡', titulo:'Advertencia formal',           sub:'3–5 deméritos netos — registrar en expediente'},
-  {min:0,  cls:'s-none',   icon:'✅', titulo:'Sin sanción acumulada',        sub:'0–2 deméritos netos — continúe observando la conducta'},
-];
-
-let filaCount = 0;
-let estudianteSeleccionado = null;
-let _pendingCb = null;
-
-/* ── TABLA ─────────────────────────────────────────────── */
-function crearFila() {
-  filaCount++;
-  const tr = document.createElement('tr');
-  tr.innerHTML = `
-    <td class="num">${filaCount}</td>
-    <td><input type="date" class="fecha-input"></td>
-    <td class="desc"><textarea placeholder="Descripción…" rows="2"></textarea></td>
-    <td class="check-dem"><input type="checkbox" class="dem" data-letra="A" data-desc="No saludar al entrar o al salir del aula."></td>
-    <td class="check-dem"><input type="checkbox" class="dem" data-letra="B" data-desc='Omitir "Por favor" al hacer una petición.'></td>
-    <td class="check-dem"><input type="checkbox" class="dem" data-letra="C" data-desc='Omitir "Gracias" al recibir un favor, material o atención.'></td>
-    <td class="check-dem"><input type="checkbox" class="dem" data-letra="D" data-desc="Usar un tono grosero o irrespetuoso hacia compañeros, docentes o personal."></td>
-    <td class="check-red"><input type="checkbox" class="red" data-letra="A" data-desc="Cumplir una semana completa con saludos y expresiones de cortesía ejemplares."></td>
-    <td class="check-red"><input type="checkbox" class="red" data-letra="B" data-desc="Apoyar voluntariamente en actividades de orden y limpieza escolar."></td>
-    <td class="check-red"><input type="checkbox" class="red" data-letra="C" data-desc="Participar en campañas de valores organizadas por el centro educativo."></td>
-    <td class="check-rec"><input type="checkbox" class="rec" data-letra="A" data-desc="Diplomas."></td>
-    <td class="check-rec"><input type="checkbox" class="rec" data-letra="B" data-desc="Menciones en Murales Escolares."></td>
-    <td><input type="text" class="inline" placeholder="Nombre docente"></td>
-    <td><input type="text" class="inline" placeholder="Firma responsable"></td>
-    <td><input type="text" class="inline" placeholder="Firma estudiante"></td>
-    <td class="del-cell"><button onclick="eliminarFila(this)" title="Eliminar fila">✕</button></td>
-  `;
-  return tr;
-}
-
-function agregarFila() { document.getElementById('tabla').appendChild(crearFila()); }
-
-function eliminarFila(btn) {
-  const fila = btn.closest('tr');
-  if (document.querySelectorAll('#tabla tr').length <= 1) return;
-  fila.style.transition = 'opacity .2s'; fila.style.opacity = '0';
-  setTimeout(() => { fila.remove(); recalcular(); renumerarFilas(); }, 200);
-}
-
-function renumerarFilas() {
-  document.querySelectorAll('#tabla tr').forEach((tr,i) => { const c=tr.querySelector('.num'); if(c) c.textContent=i+1; });
-}
-
-function generarTabla(n=12) {
-  const tb = document.getElementById('tabla'); tb.innerHTML=''; filaCount=0;
-  for(let i=0;i<n;i++) tb.appendChild(crearFila());
-}
-
-/* ── DESCRIPCIÓN FILA ──────────────────────────────────── */
-function actualizarDescFila(fila) {
-  const textarea = fila.querySelector('.desc textarea');
-  const lineas = [
-    ...[...fila.querySelectorAll('.dem:checked')].map(cb=>`D-${cb.dataset.letra}) ${cb.dataset.desc}`),
-    ...[...fila.querySelectorAll('.red:checked')].map(cb=>`R-${cb.dataset.letra}) ${cb.dataset.desc}`),
-    ...[...fila.querySelectorAll('.rec:checked')].map(cb=>`RC-${cb.dataset.letra}) ${cb.dataset.desc}`),
-  ];
-  textarea.value = lineas.join('\n');
-}
-
-/* ── CÁLCULOS ──────────────────────────────────────────── */
-function recalcular() {
-  const dem = document.querySelectorAll('.dem:checked').length;
-  const red = document.querySelectorAll('.red:checked').length;
-  const rec = document.querySelectorAll('.rec:checked').length;
-  const net = Math.max(0, dem-red);
-  document.getElementById('totalDem').textContent = dem;
-  document.getElementById('totalRed').textContent = red;
-  document.getElementById('totalNet').textContent = net;
-  document.getElementById('totalRec').textContent = rec;
-  const pct = Math.min(100,(net/15)*100);
-  const bar = document.getElementById('progressBar');
-  bar.style.width = pct+'%';
-  document.getElementById('progressLabel').textContent = `${net} / 15`;
-  if(net>=15)      bar.style.background='#c0392b';
-  else if(net>=10) bar.style.background='#e74c3c';
-  else if(net>=6)  bar.style.background='#e67e22';
-  else if(net>=3)  bar.style.background='#f1c40f';
-  else             bar.style.background='#27ae60';
-  const s = SANCIONES.find(x=>net>=x.min);
-  const el = document.getElementById('sancion');
-  el.className = `sanction ${s.cls}`;
-  el.innerHTML = `<div class="sanction-icon">${s.icon}</div><div class="sanction-text">${s.titulo}<small>${s.sub}</small></div>`;
-}
-
-/* ── MODALES CONFIRM ───────────────────────────────────── */
-function abrirConfirm(tipo, cb) {
-  _pendingCb = cb;
-  const bodyId    = tipo==='red' ? 'confirmRedBody'    : 'confirmRecBody';
-  const overlayId = tipo==='red' ? 'confirmRedOverlay' : 'confirmRecOverlay';
-  const letClass  = tipo==='red' ? 'red-theme-letter'  : 'rec-theme-letter';
-  document.getElementById(bodyId).innerHTML = `
-    <div class="confirm-item">
-      <div class="confirm-letter ${letClass}">${cb.dataset.letra}</div>
-      <div class="confirm-item-text">${cb.dataset.desc}</div>
-    </div>`;
-  document.getElementById(overlayId).classList.add('open');
-}
-
-function cancelarConfirm(tipo) {
-  if(_pendingCb){ _pendingCb.checked=false; _pendingCb=null; }
-  document.getElementById(tipo==='red'?'confirmRedOverlay':'confirmRecOverlay').classList.remove('open');
-  recalcular();
-}
-
-function aceptarConfirm(tipo) {
-  document.getElementById(tipo==='red'?'confirmRedOverlay':'confirmRecOverlay').classList.remove('open');
-  if(_pendingCb){ actualizarDescFila(_pendingCb.closest('tr')); _pendingCb=null; }
-  recalcular();
-}
-
-/* ── MODAL ESTUDIANTE ──────────────────────────────────── */
-function abrirModal() {
-  document.getElementById('modalSearch').value='';
-  renderLista(ESTUDIANTES);
-  document.getElementById('modalOverlay').classList.add('open');
-  setTimeout(()=>document.getElementById('modalSearch').focus(),120);
-}
-function cerrarModal() { document.getElementById('modalOverlay').classList.remove('open'); }
-function cerrarModalOverlay(e) { if(e.target===document.getElementById('modalOverlay')) cerrarModal(); }
-
-function filtrarEstudiantes() {
-  const q=document.getElementById('modalSearch').value.trim().toLowerCase();
-  renderLista(q ? ESTUDIANTES.filter(s=>s.nombre.toLowerCase().includes(q)||s.nie.includes(q)) : ESTUDIANTES);
-}
-
-function renderLista(lista) {
-  const c=document.getElementById('modalList');
-  if(!lista.length){ c.innerHTML='<div class="modal-no-results">🔍 No se encontraron resultados</div>'; return; }
-  c.innerHTML=lista.map(s=>`
-    <div class="modal-item ${estudianteSeleccionado?.nie===s.nie?'selected':''}" onclick="seleccionarEstudiante(${s.no-1})">
-      <div class="modal-num">${s.no}</div>
-      <div class="modal-info">
-        <div class="est-name">${resaltar(s.nombre)}</div>
-        <div class="est-nie">NIE: ${resaltar(s.nie)}</div>
-      </div>
-      <span style="color:#c8a84b;font-size:18px;opacity:${estudianteSeleccionado?.nie===s.nie?'1':'0'}">✓</span>
-    </div>`).join('');
-}
-
-function resaltar(texto) {
-  const q=document.getElementById('modalSearch').value.trim();
-  if(!q) return texto;
-  return texto.replace(new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`,'gi'),'<mark style="background:#fff3cd;border-radius:2px;padding:0 1px;">$1</mark>');
-}
-
-function seleccionarEstudiante(idx) {
-  const est=ESTUDIANTES[idx]; estudianteSeleccionado=est;
-  const turnoAuto=new Date().getHours()<12?'Matutino':'Vespertino';
-  document.getElementById('nombreEstudiante').value=est.nombre;
-  document.getElementById('nie').value=est.nie;
-  document.getElementById('sexo').value=est.sexo;
-  document.getElementById('grado').value='1° Año General';
-  document.getElementById('anio').value='2026';
-  document.getElementById('turno').value=turnoAuto;
-  ['nombreEstudiante','nie','grado','anio'].forEach(id=>{
-    const el=document.getElementById(id); el.style.transition='background .15s'; el.style.background='#e8f5e9';
-    setTimeout(()=>{ el.style.background=''; },700);
-  });
-  ['sexo','turno'].forEach(id=>{
-    const el=document.getElementById(id); el.style.transition='background .15s'; el.style.background='#e8f5e9';
-    setTimeout(()=>{ el.style.background=''; },700);
-  });
-  guardarDatos(); cerrarModal();
-}
-
-/* ── PERSISTENCIA ──────────────────────────────────────── */
-function guardarDatos() {
-  try {
-    localStorage.setItem('ce_demeritos_estudiante', JSON.stringify({
-      nombre: document.getElementById('nombreEstudiante').value,
-      nie:    document.getElementById('nie').value,
-      sexo:   document.getElementById('sexo').value,
-      grado:  document.getElementById('grado').value,
-      turno:  document.getElementById('turno').value,
-      anio:   document.getElementById('anio').value,
-    }));
-  } catch(_) {}
-}
-
-function cargarDatos() {
-  try {
-    const raw=localStorage.getItem('ce_demeritos_estudiante'); if(!raw) return;
-    const d=JSON.parse(raw);
-    document.getElementById('nombreEstudiante').value=d.nombre||'';
-    document.getElementById('nie').value=d.nie||'';
-    document.getElementById('sexo').value=d.sexo||'';
-    document.getElementById('grado').value=d.grado||'';
-    document.getElementById('turno').value=d.turno||'';
-    document.getElementById('anio').value=d.anio||'';
-  } catch(_) {}
-}
-
-/* ── PDF ───────────────────────────────────────────────── */
-async function exportarPDF() {
-  const btn=document.getElementById('btnPDF');
-  btn.disabled=true; btn.innerHTML='⏳ Generando…';
-  document.querySelectorAll('.del-cell').forEach(c=>c.style.display='none');
-  try {
-    const canvas=await html2canvas(document.getElementById('contenidoPDF'),{scale:2,useCORS:true,logging:false});
-    const {jsPDF}=window.jspdf; const pdf=new jsPDF('p','mm','a4');
-    const pw=190, pageH=277, ph=(canvas.height*pw)/canvas.width;
-    if(ph<=pageH){ pdf.addImage(canvas.toDataURL('image/png'),'PNG',10,10,pw,ph); }
-    else {
-      let rem=ph,sy=0;
-      while(rem>0){
-        const sh=Math.min(rem,pageH),sc=document.createElement('canvas'),r=canvas.width/pw;
-        sc.width=canvas.width; sc.height=sh*r;
-        sc.getContext('2d').drawImage(canvas,0,sy*r,canvas.width,sc.height,0,0,canvas.width,sc.height);
-        if(sy>0) pdf.addPage();
-        pdf.addImage(sc.toDataURL('image/png'),'PNG',10,10,pw,sh);
-        sy+=sh; rem-=sh;
+  <script>
+    /**
+     * Tarjeta de Deméritos - Aplicación Mejorada
+     * Versión 2.0 - Código modular y mantenible
+     */
+    
+    const app = (function() {
+      'use strict';
+      
+      // ==================== CONFIGURACIÓN ====================
+      
+      const CONFIG = {
+        MAX_ROWS: 50,
+        DEFAULT_ROWS: 12,
+        STORAGE_KEY: 'ce_demeritos_data_v2',
+        STUDENT_KEY: 'ce_demeritos_estudiante_v2',
+        HISTORY_KEY: 'ce_demeritos_history',
+        MAX_HISTORY: 20
+      };
+      
+      // ==================== DATOS ====================
+      
+      const STUDENTS = [
+        { no: 1, nie: '10192638', nombre: 'ACOSTA DEODANES, CAROLINA LISSETH', sexo: 'Mujer' },
+        { no: 2, nie: '20085229', nombre: 'AGUILAR ORTIZ, CESAR ISMAEL', sexo: 'Hombre' },
+        { no: 3, nie: '20085270', nombre: 'BENITEZ PEREZ, OSCAR EFRAIN', sexo: 'Hombre' },
+        { no: 4, nie: '20085307', nombre: 'CARRILLO VENTURA, RUTH NOEMY', sexo: 'Mujer' },
+        { no: 5, nie: '19933288', nombre: 'CASTRO ORTIZ, JAZMIN SARAI', sexo: 'Mujer' },
+        { no: 6, nie: '20008551', nombre: 'CORNEJO ORTIZ, PAMELA GUADALUPE', sexo: 'Mujer' },
+        { no: 7, nie: '19933292', nombre: 'CRUZ GARCÍA, JHAMILTON GEOVANY', sexo: 'Hombre' },
+        { no: 8, nie: '10380636', nombre: 'CRUZ VEGA, JUANA ELENA', sexo: 'Mujer' },
+        { no: 9, nie: '20085334', nombre: 'DEODANES JORGE, DAVID ALEXANDER', sexo: 'Hombre' },
+        { no: 10, nie: '20161320', nombre: 'DEODANES PÉREZ, CARLOS DANIEL', sexo: 'Hombre' },
+        { no: 11, nie: '19933320', nombre: 'DEODANES RODRIGUEZ, WILLIAN LEONEL', sexo: 'Hombre' },
+        { no: 12, nie: '20161321', nombre: 'DEODANES SANTOS, KATHERIN MARITZA', sexo: 'Mujer' },
+        { no: 13, nie: '20116603', nombre: 'JORGE BENITEZ, XAVIER ERNESTO', sexo: 'Hombre' },
+        { no: 14, nie: '20116605', nombre: 'LEON RODRIGUEZ, JEFFERSON ALEXIS', sexo: 'Hombre' },
+        { no: 15, nie: '20116607', nombre: 'MARTINEZ PEREZ, MANUEL ENRIQUE', sexo: 'Hombre' },
+        { no: 16, nie: '20116608', nombre: 'MARTINEZ VASQUEZ, ANDERSON MAURICIO', sexo: 'Hombre' },
+        { no: 17, nie: '20161327', nombre: 'MARTÍNEZ MIRANDA, JOSÉ BRYAN', sexo: 'Hombre' },
+        { no: 18, nie: '20116614', nombre: 'MENDEZ PEREZ, JORGE ERNESTO', sexo: 'Hombre' },
+        { no: 19, nie: '19964662', nombre: 'ORTIZ MARTÍNEZ, JOSELYN ROXANA', sexo: 'Mujer' },
+        { no: 20, nie: '20116635', nombre: 'PEREZ JACINTO, ROSIBEL', sexo: 'Mujer' },
+        { no: 21, nie: '19964672', nombre: 'PÉREZ DEODANES, ISAÍAS ARMANDO', sexo: 'Hombre' },
+        { no: 22, nie: '20116666', nombre: 'VASQUEZ BENITES, DORIS ESTEFANNY', sexo: 'Mujer' },
+        { no: 23, nie: '20116669', nombre: 'VASQUEZ MARTINEZ, NELSON ANTONIO', sexo: 'Hombre' },
+        { no: 24, nie: '20116683', nombre: 'VENITES RODRIGUEZ, SERGIO JAVIER', sexo: 'Hombre' }
+      ];
+      
+      const SANCTIONS = [
+        { min: 15, cls: 's-noprom', icon: '🚫', title: 'No promoción de grado', sub: '15 o más deméritos netos — consecuencia máxima' },
+        { min: 10, cls: 's-susp', icon: '⛔', title: 'Suspensión de privilegios', sub: '10–14 deméritos netos — revisar con dirección' },
+        { min: 6, cls: 's-comms', icon: '📞', title: 'Comunicación a la familia', sub: '6–9 deméritos netos — citar al padre/madre o responsable' },
+        { min: 3, cls: 's-warn', icon: '⚡', title: 'Advertencia formal', sub: '3–5 deméritos netos — registrar en expediente' },
+        { min: 0, cls: 's-none', icon: '✅', title: 'Sin sanción acumulada', sub: '0–2 deméritos netos — continúe observando la conducta' }
+      ];
+      
+      const DEMERIT_TYPES = {
+        dem: [
+          { letter: 'A', desc: 'No saludar al entrar o al salir del aula.' },
+          { letter: 'B', desc: 'Omitir "Por favor" al hacer una petición.' },
+          { letter: 'C', desc: 'Omitir "Gracias" al recibir un favor, material o atención.' },
+          { letter: 'D', desc: 'Usar un tono grosero o irrespetuoso hacia compañeros, docentes o personal.' }
+        ],
+        red: [
+          { letter: 'A', desc: 'Cumplir una semana completa con saludos y expresiones de cortesía ejemplares.' },
+          { letter: 'B', desc: 'Apoyar voluntariamente en actividades de orden y limpieza escolar.' },
+          { letter: 'C', desc: 'Participar en campañas de valores organizadas por el centro educativo.' }
+        ],
+        rec: [
+          { letter: 'A', desc: 'Diplomas.' },
+          { letter: 'B', desc: 'Menciones en Murales Escolares.' }
+        ]
+      };
+      
+      // ==================== ESTADO ====================
+      
+      let state = {
+        rowCount: 0,
+        selectedStudent: null,
+        pendingCheckbox: null,
+        currentFilter: 'all',
+        history: [],
+        historyIndex: -1
+      };
+      
+      // ==================== UTILIDADES ====================
+      
+      const utils = {
+        /**
+         * Genera un ID único
+         */
+        generateId() {
+          return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        },
+        
+        /**
+         * Formatea texto para resaltar búsqueda
+         */
+        highlightText(text, query) {
+          if (!query) return text;
+          const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          return text.replace(new RegExp(`(${escaped})`, 'gi'), '<mark style="background: #fff3cd; border-radius: 3px; padding: 1px 3px; font-weight: 600;">$1</mark>');
+        },
+        
+        /**
+         * Obtiene turno automático basado en hora
+         */
+        getAutoShift() {
+          const hour = new Date().getHours();
+          return hour < 12 ? 'Matutino' : hour < 18 ? 'Vespertino' : 'Nocturno';
+        },
+        
+        /**
+         * Formatea fecha para input date
+         */
+        formatDate(date = new Date()) {
+          return date.toISOString().split('T')[0];
+        },
+        
+        /**
+         * Guarda en localStorage con manejo de errores
+         */
+        saveToStorage(key, data) {
+          try {
+            localStorage.setItem(key, JSON.stringify(data));
+            return true;
+          } catch (e) {
+            console.warn('Error saving to localStorage:', e);
+            return false;
+          }
+        },
+        
+        /**
+         * Carga de localStorage con manejo de errores
+         */
+        loadFromStorage(key, defaultValue = null) {
+          try {
+            const data = localStorage.getItem(key);
+            return data ? JSON.parse(data) : defaultValue;
+          } catch (e) {
+            console.warn('Error loading from localStorage:', e);
+            return defaultValue;
+          }
+        },
+        
+        /**
+         * Debounce para eventos frecuentes
+         */
+        debounce(func, wait) {
+          let timeout;
+          return function executedFunction(...args) {
+            const later = () => {
+              clearTimeout(timeout);
+              func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+          };
+        }
+      };
+      
+      // ==================== NOTIFICACIONES ====================
+      
+      const notifications = {
+        container: document.getElementById('toastContainer'),
+        
+        show(message, type = 'info', title = '', duration = 4000) {
+          const icons = {
+            success: '✅',
+            error: '❌',
+            warning: '⚠️',
+            info: 'ℹ️'
+          };
+          
+          const toast = document.createElement('div');
+          toast.className = `toast ${type}`;
+          toast.innerHTML = `
+            <div class="toast-icon">${icons[type] || icons.info}</div>
+            <div class="toast-content">
+              <div class="toast-title">${title || type.charAt(0).toUpperCase() + type.slice(1)}</div>
+              <div class="toast-message">${message}</div>
+            </div>
+            <button class="toast-close" onclick="this.parentElement.remove()">✕</button>
+          `;
+          
+          this.container.appendChild(toast);
+          
+          if (duration > 0) {
+            setTimeout(() => {
+              toast.style.animation = 'slideInRight 0.4s ease reverse';
+              setTimeout(() => toast.remove(), 400);
+            }, duration);
+          }
+          
+          return toast;
+        },
+        
+        success(message, title = 'Éxito') {
+          return this.show(message, 'success', title);
+        },
+        
+        error(message, title = 'Error') {
+          return this.show(message, 'error', title);
+        },
+        
+        warning(message, title = 'Advertencia') {
+          return this.show(message, 'warning', title);
+        },
+        
+        info(message, title = 'Información') {
+          return this.show(message, 'info', title);
+        }
+      };
+      
+      // ==================== HISTORIAL (UNDO/REDO) ====================
+      
+      const historyManager = {
+        save() {
+          const data = {
+            rows: tableManager.getAllRowsData(),
+            student: studentManager.getStudentData(),
+            timestamp: Date.now()
+          };
+          
+          // Eliminar historial futuro si estamos en medio de la pila
+          if (state.historyIndex < state.history.length - 1) {
+            state.history = state.history.slice(0, state.historyIndex + 1);
+          }
+          
+          state.history.push(data);
+          
+          // Limitar tamaño del historial
+          if (state.history.length > CONFIG.MAX_HISTORY) {
+            state.history.shift();
+          } else {
+            state.historyIndex++;
+          }
+          
+          utils.saveToStorage(CONFIG.HISTORY_KEY, state.history);
+        },
+        
+        undo() {
+          if (state.historyIndex > 0) {
+            state.historyIndex--;
+            const data = state.history[state.historyIndex];
+            this.restore(data);
+            notifications.info('Acción deshecha', 'Deshacer');
+            return true;
+          }
+          notifications.warning('No hay acciones para deshacer');
+          return false;
+        },
+        
+        redo() {
+          if (state.historyIndex < state.history.length - 1) {
+            state.historyIndex++;
+            const data = state.history[state.historyIndex];
+            this.restore(data);
+            notifications.info('Acción rehecha', 'Rehacer');
+            return true;
+          }
+          notifications.warning('No hay acciones para rehacer');
+          return false;
+        },
+        
+        restore(data) {
+          if (data.student) {
+            studentManager.setStudentData(data.student);
+          }
+          if (data.rows) {
+            tableManager.loadRowsData(data.rows);
+          }
+          calculations.recalculate();
+        },
+        
+        init() {
+          const saved = utils.loadFromStorage(CONFIG.HISTORY_KEY, []);
+          if (saved.length > 0) {
+            state.history = saved;
+            state.historyIndex = saved.length - 1;
+          }
+        }
+      };
+      
+      // ==================== GESTIÓN DE ESTUDIANTES ====================
+      
+      const studentManager = {
+        openModal() {
+          const overlay = document.getElementById('modalOverlay');
+          const searchInput = document.getElementById('modalSearch');
+          
+          searchInput.value = '';
+          this.renderList(STUDENTS);
+          overlay.classList.add('open');
+          
+          setTimeout(() => searchInput.focus(), 100);
+        },
+        
+        closeModal() {
+          document.getElementById('modalOverlay').classList.remove('open');
+        },
+        
+        closeModalOverlay(event) {
+          if (event.target === document.getElementById('modalOverlay')) {
+            this.closeModal();
+          }
+        },
+        
+        filterStudents() {
+          const query = document.getElementById('modalSearch').value.trim().toLowerCase();
+          const filtered = query 
+            ? STUDENTS.filter(s => 
+                s.nombre.toLowerCase().includes(query) || 
+                s.nie.includes(query)
+              )
+            : STUDENTS;
+          this.renderList(filtered, query);
+        },
+        
+        renderList(students, query = '') {
+          const container = document.getElementById('modalList');
+          
+          if (!students.length) {
+            container.innerHTML = `
+              <div class="modal-no-results">
+                <div style="font-size: 48px; margin-bottom: 16px;">🔍</div>
+                No se encontraron estudiantes
+              </div>
+            `;
+            return;
+          }
+          
+          container.innerHTML = students.map(s => `
+            <div class="modal-item ${state.selectedStudent?.nie === s.nie ? 'selected' : ''}" 
+                 onclick="app.selectStudent(${s.no - 1})"
+                 data-nie="${s.nie}">
+              <div class="modal-num">${s.no}</div>
+              <div class="modal-info">
+                <div class="est-name">${utils.highlightText(s.nombre, query)}</div>
+                <div class="est-nie">NIE: ${utils.highlightText(s.nie, query)}</div>
+              </div>
+              ${state.selectedStudent?.nie === s.nie ? '<span style="color: var(--gold); font-size: 20px;">✓</span>' : ''}
+            </div>
+          `).join('');
+        },
+        
+        selectStudent(index) {
+          const student = STUDENTS[index];
+          state.selectedStudent = student;
+          
+          const data = {
+            nombre: student.nombre,
+            nie: student.nie,
+            sexo: student.sexo,
+            grado: '1° Año General',
+            anio: new Date().getFullYear().toString(),
+            turno: utils.getAutoShift()
+          };
+          
+          this.setStudentData(data);
+          this.highlightFields();
+          this.saveStudentData();
+          this.closeModal();
+          
+          notifications.success(`Estudiante ${student.nombre} seleccionado`, 'Estudiante');
+          
+          // Guardar en historial
+          historyManager.save();
+        },
+        
+        setStudentData(data) {
+          document.getElementById('nombreEstudiante').value = data.nombre || '';
+          document.getElementById('nie').value = data.nie || '';
+          document.getElementById('sexo').value = data.sexo || '';
+          document.getElementById('grado').value = data.grado || '';
+          document.getElementById('turno').value = data.turno || '';
+          document.getElementById('anio').value = data.anio || '';
+        },
+        
+        getStudentData() {
+          return {
+            nombre: document.getElementById('nombreEstudiante').value,
+            nie: document.getElementById('nie').value,
+            sexo: document.getElementById('sexo').value,
+            grado: document.getElementById('grado').value,
+            turno: document.getElementById('turno').value,
+            anio: document.getElementById('anio').value
+          };
+        },
+        
+        highlightFields() {
+          const fields = ['nombreEstudiante', 'nie', 'sexo', 'grado', 'turno', 'anio'];
+          fields.forEach(id => {
+            const el = document.getElementById(id);
+            el.style.transition = 'all 0.3s ease';
+            el.style.background = '#e8f5e9';
+            el.style.borderColor = '#4caf50';
+            setTimeout(() => {
+              el.style.background = '';
+              el.style.borderColor = '';
+            }, 800);
+          });
+        },
+        
+        saveStudentData() {
+          utils.saveToStorage(CONFIG.STUDENT_KEY, this.getStudentData());
+        },
+        
+        loadStudentData() {
+          const data = utils.loadFromStorage(CONFIG.STUDENT_KEY);
+          if (data) {
+            this.setStudentData(data);
+            // Buscar estudiante en la lista
+            state.selectedStudent = STUDENTS.find(s => s.nie === data.nie) || null;
+          }
+        }
+      };
+      
+      // ==================== GESTIÓN DE TABLA ====================
+      
+      const tableManager = {
+        tbody: document.getElementById('tabla'),
+        
+        createRow(data = null) {
+          if (state.rowCount >= CONFIG.MAX_ROWS) {
+            notifications.warning(`Máximo de ${CONFIG.MAX_ROWS} filas alcanzado`);
+            return null;
+          }
+          
+          state.rowCount++;
+          const rowId = utils.generateId();
+          
+          const tr = document.createElement('tr');
+          tr.dataset.rowId = rowId;
+          tr.innerHTML = `
+            <td class="num">${state.rowCount}</td>
+            <td>
+              <input type="date" class="fecha-input" value="${data?.fecha || utils.formatDate()}">
+            </td>
+            <td class="desc">
+              <textarea placeholder="Descripción..." rows="2">${data?.descripcion || ''}</textarea>
+            </td>
+            <td class="check-dem">
+              <input type="checkbox" class="dem" data-type="dem" data-letter="A" 
+                ${data?.dem?.includes('A') ? 'checked' : ''}>
+            </td>
+            <td class="check-dem">
+              <input type="checkbox" class="dem" data-type="dem" data-letter="B" 
+                ${data?.dem?.includes('B') ? 'checked' : ''}>
+            </td>
+            <td class="check-dem">
+              <input type="checkbox" class="dem" data-type="dem" data-letter="C" 
+                ${data?.dem?.includes('C') ? 'checked' : ''}>
+            </td>
+            <td class="check-dem">
+              <input type="checkbox" class="dem" data-type="dem" data-letter="D" 
+                ${data?.dem?.includes('D') ? 'checked' : ''}>
+            </td>
+            <td class="check-red">
+              <input type="checkbox" class="red" data-type="red" data-letter="A" 
+                ${data?.red?.includes('A') ? 'checked' : ''}>
+            </td>
+            <td class="check-red">
+              <input type="checkbox" class="red" data-type="red" data-letter="B" 
+                ${data?.red?.includes('B') ? 'checked' : ''}>
+            </td>
+            <td class="check-red">
+              <input type="checkbox" class="red" data-type="red" data-letter="C" 
+                ${data?.red?.includes('C') ? 'checked' : ''}>
+            </td>
+            <td class="check-rec">
+              <input type="checkbox" class="rec" data-type="rec" data-letter="A" 
+                ${data?.rec?.includes('A') ? 'checked' : ''}>
+            </td>
+            <td class="check-rec">
+              <input type="checkbox" class="rec" data-type="rec" data-letter="B" 
+                ${data?.rec?.includes('B') ? 'checked' : ''}>
+            </td>
+            <td>
+              <input type="text" class="inline" placeholder="Nombre docente" value="${data?.docente || ''}">
+            </td>
+            <td>
+              <input type="text" class="inline" placeholder="Firma responsable" value="${data?.firmaPadre || ''}">
+            </td>
+            <td>
+              <input type="text" class="inline" placeholder="Firma estudiante" value="${data?.firmaEst || ''}">
+            </td>
+            <td class="del-cell">
+              <button onclick="app.deleteRow(this)" title="Eliminar fila">✕</button>
+            </td>
+          `;
+          
+          // Animación de entrada
+          tr.style.opacity = '0';
+          tr.style.transform = 'translateY(-10px)';
+          setTimeout(() => {
+            tr.style.transition = 'all 0.3s ease';
+            tr.style.opacity = '1';
+            tr.style.transform = 'translateY(0)';
+          }, 10);
+          
+          return tr;
+        },
+        
+        addRow(data = null) {
+          const row = this.createRow(data);
+          if (row) {
+            this.tbody.appendChild(row);
+            this.updateEmptyState();
+            calculations.recalculate();
+            
+            // Scroll a la nueva fila
+            row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            // Guardar en historial
+            historyManager.save();
+            
+            return row;
+          }
+          return null;
+        },
+        
+        deleteRow(btn) {
+          const rows = this.tbody.querySelectorAll('tr');
+          if (rows.length <= 1) {
+            notifications.warning('Debe mantener al menos una fila');
+            return;
+          }
+          
+          const row = btn.closest('tr');
+          
+          // Confirmación para filas con datos
+          const hasData = row.querySelectorAll('input[type="checkbox"]:checked').length > 0 ||
+                         row.querySelector('textarea').value.trim() !== '';
+          
+          if (hasData && !confirm('¿Eliminar esta fila con datos?')) {
+            return;
+          }
+          
+          // Animación de salida
+          row.style.transition = 'all 0.3s ease';
+          row.style.opacity = '0';
+          row.style.transform = 'translateX(-20px)';
+          
+          setTimeout(() => {
+            row.remove();
+            this.renumberRows();
+            calculations.recalculate();
+            this.updateEmptyState();
+            historyManager.save();
+            notifications.success('Fila eliminada', 'Eliminado');
+          }, 300);
+        },
+        
+        renumberRows() {
+          const rows = this.tbody.querySelectorAll('tr');
+          rows.forEach((tr, i) => {
+            const numCell = tr.querySelector('.num');
+            if (numCell) {
+              numCell.textContent = i + 1;
+            }
+          });
+          state.rowCount = rows.length;
+        },
+        
+        generateTable(n = CONFIG.DEFAULT_ROWS) {
+          this.tbody.innerHTML = '';
+          state.rowCount = 0;
+          
+          for (let i = 0; i < n; i++) {
+            const row = this.createRow();
+            if (row) {
+              this.tbody.appendChild(row);
+            }
+          }
+          
+          this.updateEmptyState();
+        },
+        
+        updateEmptyState() {
+          const emptyState = document.getElementById('emptyState');
+          const hasRows = this.tbody.querySelectorAll('tr').length > 0;
+          emptyState.style.display = hasRows ? 'none' : 'block';
+        },
+        
+        updateRowDescription(row) {
+          const textarea = row.querySelector('.desc textarea');
+          const lines = [];
+          
+          // Deméritos
+          row.querySelectorAll('.dem:checked').forEach(cb => {
+            const type = DEMERIT_TYPES.dem.find(d => d.letter === cb.dataset.letter);
+            if (type) {
+              lines.push(`D-${cb.dataset.letter}) ${type.desc}`);
+            }
+          });
+          
+          // Redenciones
+          row.querySelectorAll('.red:checked').forEach(cb => {
+            const type = DEMERIT_TYPES.red.find(d => d.letter === cb.dataset.letter);
+            if (type) {
+              lines.push(`R-${cb.dataset.letter}) ${type.desc}`);
+            }
+          });
+          
+          // Reconocimientos
+          row.querySelectorAll('.rec:checked').forEach(cb => {
+            const type = DEMERIT_TYPES.rec.find(d => d.letter === cb.dataset.letter);
+            if (type) {
+              lines.push(`RC-${cb.dataset.letter}) ${type.desc}`);
+            }
+          });
+          
+          textarea.value = lines.join('\n');
+        },
+        
+        getAllRowsData() {
+          const rows = [];
+          this.tbody.querySelectorAll('tr').forEach(tr => {
+            const data = {
+              fecha: tr.querySelector('.fecha-input')?.value || '',
+              descripcion: tr.querySelector('.desc textarea')?.value || '',
+              dem: [...tr.querySelectorAll('.dem:checked')].map(cb => cb.dataset.letter),
+              red: [...tr.querySelectorAll('.red:checked')].map(cb => cb.dataset.letter),
+              rec: [...tr.querySelectorAll('.rec:checked')].map(cb => cb.dataset.letter),
+              docente: tr.querySelector('td:nth-child(13) input')?.value || '',
+              firmaPadre: tr.querySelector('td:nth-child(14) input')?.value || '',
+              firmaEst: tr.querySelector('td:nth-child(15) input')?.value || ''
+            };
+            rows.push(data);
+          });
+          return rows;
+        },
+        
+        loadRowsData(rowsData) {
+          this.tbody.innerHTML = '';
+          state.rowCount = 0;
+          
+          rowsData.forEach(data => {
+            const row = this.createRow(data);
+            if (row) {
+              this.tbody.appendChild(row);
+            }
+          });
+          
+          this.updateEmptyState();
+        },
+        
+        filterTable(query, type = 'all') {
+          const rows = this.tbody.querySelectorAll('tr');
+          
+          rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            const hasDem = row.querySelectorAll('.dem:checked').length > 0;
+            const hasRed = row.querySelectorAll('.red:checked').length > 0;
+            const hasRec = row.querySelectorAll('.rec:checked').length > 0;
+            
+            const matchesQuery = !query || text.includes(query.toLowerCase());
+            let matchesType = true;
+            
+            if (type === 'dem') matchesType = hasDem;
+            else if (type === 'red') matchesType = hasRed;
+            else if (type === 'rec') matchesType = hasRec;
+            
+            if (matchesQuery && matchesType) {
+              row.classList.remove('hidden');
+            } else {
+              row.classList.add('hidden');
+            }
+          });
+        }
+      };
+      
+      // ==================== CÁLCULOS ====================
+      
+      const calculations = {
+        recalculate() {
+          const dem = document.querySelectorAll('.dem:checked').length;
+          const red = document.querySelectorAll('.red:checked').length;
+          const rec = document.querySelectorAll('.rec:checked').length;
+          const net = Math.max(0, dem - red);
+          
+          // Actualizar contadores con animación
+          this.animateValue('totalDem', parseInt(document.getElementById('totalDem').textContent), dem);
+          this.animateValue('totalRed', parseInt(document.getElementById('totalRed').textContent), red);
+          this.animateValue('totalNet', parseInt(document.getElementById('totalNet').textContent), net);
+          this.animateValue('totalRec', parseInt(document.getElementById('totalRec').textContent), rec);
+          
+          // Barra de progreso
+          const pct = Math.min(100, (net / 15) * 100);
+          const bar = document.getElementById('progressBar');
+          bar.style.width = pct + '%';
+          document.getElementById('progressLabel').textContent = `${net} / 15`;
+          
+          // Color de la barra
+          const colors = [
+            { threshold: 15, color: '#c0392b' },
+            { threshold: 10, color: '#e74c3c' },
+            { threshold: 6, color: '#e67e22' },
+            { threshold: 3, color: '#f1c40f' },
+            { threshold: 0, color: '#27ae60' }
+          ];
+          
+          const color = colors.find(c => net >= c.threshold)?.color || '#27ae60';
+          bar.style.background = color;
+          
+          // Sanción
+          const sanction = SANCTIONS.find(s => net >= s.min) || SANCTIONS[SANCTIONS.length - 1];
+          const sanctionEl = document.getElementById('sancion');
+          sanctionEl.className = `sanction ${sanction.cls}`;
+          sanctionEl.innerHTML = `
+            <div class="sanction-icon">${sanction.icon}</div>
+            <div class="sanction-text">
+              ${sanction.title}
+              <small>${sanction.sub}</small>
+            </div>
+          `;
+          
+          // Guardar datos
+          this.saveData();
+        },
+        
+        animateValue(id, start, end) {
+          if (start === end) return;
+          
+          const el = document.getElementById(id);
+          const duration = 500;
+          const startTime = performance.now();
+          
+          const animate = (currentTime) => {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const easeProgress = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+            const current = Math.round(start + (end - start) * easeProgress);
+            
+            el.textContent = current;
+            
+            if (progress < 1) {
+              requestAnimationFrame(animate);
+            }
+          };
+          
+          requestAnimationFrame(animate);
+        },
+        
+        saveData() {
+          const data = {
+            rows: tableManager.getAllRowsData(),
+            timestamp: Date.now()
+          };
+          utils.saveToStorage(CONFIG.STORAGE_KEY, data);
+        },
+        
+        loadData() {
+          const data = utils.loadFromStorage(CONFIG.STORAGE_KEY);
+          if (data && data.rows && data.rows.length > 0) {
+            tableManager.loadRowsData(data.rows);
+            this.recalculate();
+          } else {
+            tableManager.generateTable();
+          }
+        }
+      };
+      
+      // ==================== MODALES DE CONFIRMACIÓN ====================
+      
+      const confirmManager = {
+        open(type, checkbox) {
+          state.pendingCheckbox = checkbox;
+          
+          const bodyId = type === 'red' ? 'confirmRedBody' : 'confirmRecBody';
+          const overlayId = type === 'red' ? 'confirmRedOverlay' : 'confirmRecOverlay';
+          const letterClass = type === 'red' ? 'red-theme-letter' : 'rec-theme-letter';
+          
+          const types = DEMERIT_TYPES[type];
+          const item = types.find(t => t.letter === checkbox.dataset.letter);
+          
+          if (item) {
+            document.getElementById(bodyId).innerHTML = `
+              <div class="confirm-item">
+                <div class="confirm-letter ${letterClass}">${checkbox.dataset.letter}</div>
+                <div class="confirm-item-text">${item.desc}</div>
+              </div>
+            `;
+            document.getElementById(overlayId).classList.add('open');
+          }
+        },
+        
+        cancel(type) {
+          if (state.pendingCheckbox) {
+            state.pendingCheckbox.checked = false;
+            state.pendingCheckbox = null;
+          }
+          document.getElementById(type === 'red' ? 'confirmRedOverlay' : 'confirmRecOverlay').classList.remove('open');
+          calculations.recalculate();
+        },
+        
+        accept(type) {
+          document.getElementById(type === 'red' ? 'confirmRedOverlay' : 'confirmRecOverlay').classList.remove('open');
+          if (state.pendingCheckbox) {
+            const row = state.pendingCheckbox.closest('tr');
+            tableManager.updateRowDescription(row);
+            state.pendingCheckbox = null;
+            calculations.recalculate();
+            historyManager.save();
+          }
+        }
+      };
+      
+      // ==================== EXPORTACIÓN ====================
+      
+      const exportManager = {
+        async pdf() {
+          const btn = document.getElementById('btnPDF');
+          const originalText = btn.innerHTML;
+          
+          btn.disabled = true;
+          btn.innerHTML = '<span class="spinner"></span> Generando...';
+          
+          // Ocultar elementos de UI
+          document.querySelectorAll('.del-cell, .table-controls').forEach(el => {
+            el.style.display = 'none';
+          });
+          
+          try {
+            const element = document.getElementById('contenidoPDF');
+            const canvas = await html2canvas(element, {
+              scale: 2,
+              useCORS: true,
+              logging: false,
+              backgroundColor: '#ffffff'
+            });
+            
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            
+            const imgData = canvas.toDataURL('image/png');
+            const imgWidth = 190;
+            const pageHeight = 277;
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            
+            let heightLeft = imgHeight;
+            let position = 10;
+            
+            pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+            
+            while (heightLeft > 0) {
+              position = heightLeft - imgHeight + 10;
+              pdf.addPage();
+              pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+              heightLeft -= pageHeight;
+            }
+            
+            const studentName = document.getElementById('nombreEstudiante').value.trim() || 'Estudiante';
+            const safeName = studentName.replace(/[^a-z0-9áéíóúñ\s]/gi, '').replace(/\s+/g, '_');
+            pdf.save(`Instrumento_001_${safeName}.pdf`);
+            
+            notifications.success('PDF generado correctamente', 'Éxito');
+          } catch (error) {
+            console.error('Error generating PDF:', error);
+            notifications.error('Error al generar el PDF. Intente nuevamente.', 'Error');
+          } finally {
+            document.querySelectorAll('.del-cell, .table-controls').forEach(el => {
+              el.style.display = '';
+            });
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+          }
+        },
+        
+        excel() {
+          try {
+            const student = studentManager.getStudentData();
+            const rows = tableManager.getAllRowsData();
+            
+            // Crear datos para Excel
+            const data = rows.map((row, index) => ({
+              'N°': index + 1,
+              'Fecha': row.fecha,
+              'Descripción': row.descripcion,
+              'Demérito A': row.dem.includes('A') ? '✓' : '',
+              'Demérito B': row.dem.includes('B') ? '✓' : '',
+              'Demérito C': row.dem.includes('C') ? '✓' : '',
+              'Demérito D': row.dem.includes('D') ? '✓' : '',
+              'Redención A': row.red.includes('A') ? '✓' : '',
+              'Redención B': row.red.includes('B') ? '✓' : '',
+              'Redención C': row.red.includes('C') ? '✓' : '',
+              'Reconoc. A': row.rec.includes('A') ? '✓' : '',
+              'Reconoc. B': row.rec.includes('B') ? '✓' : '',
+              'Docente': row.docente,
+              'Firma Padre': row.firmaPadre,
+              'Firma Estudiante': row.firmaEst
+            }));
+            
+            // Agregar resumen al final
+            const dem = rows.reduce((acc, r) => acc + r.dem.length, 0);
+            const red = rows.reduce((acc, r) => acc + r.red.length, 0);
+            const rec = rows.reduce((acc, r) => acc + r.rec.length, 0);
+            const net = Math.max(0, dem - red);
+            
+            data.push({});
+            data.push({
+              'N°': 'RESUMEN',
+              'Fecha': '',
+              'Descripción': `Estudiante: ${student.nombre || 'N/A'}`
+            });
+            data.push({
+              'N°': '',
+              'Fecha': '',
+              'Descripción': `NIE: ${student.nie || 'N/A'}`
+            });
+            data.push({
+              'N°': 'Deméritos totales:',
+              'Fecha': dem,
+              'Descripción': ''
+            });
+            data.push({
+              'N°': 'Redenciones:',
+              'Fecha': red,
+              'Descripción': ''
+            });
+            data.push({
+              'N°': 'Deméritos netos:',
+              'Fecha': net,
+              'Descripción': ''
+            });
+            data.push({
+              'N°': 'Reconocimientos:',
+              'Fecha': rec,
+              'Descripción': ''
+            });
+            
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Deméritos');
+            
+            const studentName = student.nombre || 'Estudiante';
+            const safeName = studentName.replace(/[^a-z0-9áéíóúñ\s]/gi, '').replace(/\s+/g, '_');
+            XLSX.writeFile(wb, `Instrumento_001_${safeName}.xlsx`);
+            
+            notifications.success('Archivo Excel generado correctamente', 'Éxito');
+          } catch (error) {
+            console.error('Error generating Excel:', error);
+            notifications.error('Error al generar el Excel', 'Error');
+          }
+        }
+      };
+      
+      // ==================== INICIALIZACIÓN ====================
+      
+      function init() {
+        // Cargar datos guardados
+        studentManager.loadStudentData();
+        calculations.loadData();
+        historyManager.init();
+        
+        // Event listeners
+        setupEventListeners();
+        
+        // Atajos de teclado
+        setupKeyboardShortcuts();
+        
+        notifications.success('Sistema cargado correctamente', 'Bienvenido');
       }
-    }
-    const nombre=document.getElementById('nombreEstudiante').value.trim()||'Estudiante';
-    pdf.save(`Instrumento_001_${nombre.replace(/\s+/g,'_')}.pdf`);
-  } catch(err){ console.error(err); alert('Error al generar PDF.'); }
-  finally {
-    document.querySelectorAll('.del-cell').forEach(c=>c.style.display='');
-    btn.disabled=false; btn.innerHTML='💾 Guardar PDF';
-  }
-}
-
-/* ── LIMPIAR ───────────────────────────────────────────── */
-function limpiarFormulario() {
-  if(!confirm('¿Limpiar todo el formulario? Esta acción no se puede deshacer.')) return;
-  ['nombreEstudiante','nie','grado','anio'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('sexo').value=''; document.getElementById('turno').value='';
-  try{ localStorage.removeItem('ce_demeritos_estudiante'); }catch(_){}
-  generarTabla(); recalcular();
-}
-
-/* ── INIT ──────────────────────────────────────────────── */
-document.addEventListener('DOMContentLoaded', ()=>{
-  generarTabla(); cargarDatos();
-
-  document.addEventListener('change', e=>{
-    if(e.target.matches('.dem,.red,.rec')) recalcular();
-    if(e.target.matches('.dem')) actualizarDescFila(e.target.closest('tr'));
-    if(e.target.matches('.red')){ if(e.target.checked) abrirConfirm('red',e.target); else actualizarDescFila(e.target.closest('tr')); }
-    if(e.target.matches('.rec')){ if(e.target.checked) abrirConfirm('rec',e.target); else actualizarDescFila(e.target.closest('tr')); }
-    if(e.target.matches('#nombreEstudiante,#nie,#sexo,#grado,#turno,#anio')) guardarDatos();
-  });
-  document.addEventListener('input', e=>{ if(e.target.matches('#nombreEstudiante,#nie,#grado,#anio')) guardarDatos(); });
-  document.addEventListener('keydown', e=>{
-    if(e.key!=='Escape') return;
-    if(document.getElementById('modalOverlay').classList.contains('open'))      cerrarModal();
-    if(document.getElementById('confirmRedOverlay').classList.contains('open')) cancelarConfirm('red');
-    if(document.getElementById('confirmRecOverlay').classList.contains('open')) cancelarConfirm('rec');
-  });
-  document.getElementById('confirmRedOverlay').addEventListener('click',function(e){ if(e.target===this) cancelarConfirm('red'); });
-  document.getElementById('confirmRecOverlay').addEventListener('click',function(e){ if(e.target===this) cancelarConfirm('rec'); });
-});
-</script>
+      
+      function setupEventListeners() {
+        // Cambios en checkboxes
+        document.addEventListener('change', (e) => {
+          if (e.target.matches('.dem, .red, .rec')) {
+            const type = e.target.dataset.type;
+            const row = e.target.closest('tr');
+            
+            if (type === 'red' && e.target.checked) {
+              confirmManager.open('red', e.target);
+            } else if (type === 'rec' && e.target.checked) {
+              confirmManager.open('rec', e.target);
+            } else {
+              tableManager.updateRowDescription(row);
+              calculations.recalculate();
+              historyManager.save();
+            }
+          }
+          
+          // Guardar cambios en campos del estudiante
+          if (e.target.matches('#nombreEstudiante, #nie, #sexo, #grado, #turno, #anio')) {
+            studentManager.saveStudentData();
+          }
+        });
+        
+        // Input en campos de texto
+        document.addEventListener('input', utils.debounce((e) => {
+          if (e.target.matches('#nombreEstudiante, #nie, #grado, #anio, .inline, .desc textarea')) {
+            studentManager.saveStudentData();
+            calculations.saveData();
+          }
+        }, 500));
+        
+        // Cerrar modales con click fuera
+        document.getElementById('confirmRedOverlay').addEventListener('click', (e) => {
+          if (e.target === e.currentTarget) confirmManager.cancel('red');
+        });
+        
+        document.getElementById('confirmRecOverlay').addEventListener('click', (e) => {
+          if (e.target === e.currentTarget) confirmManager.cancel('rec');
+        });
+      }
+      
+      function setupKeyboardShortcuts() {
+        document.addEventListener('keydown', (e) => {
+          // Escape para cerrar modales
+          if (e.key === 'Escape') {
+            document.querySelectorAll('.modal-overlay.open, .confirm-overlay.open').forEach(el => {
+              el.classList.remove('open');
+            });
+            if (state.pendingCheckbox) {
+              state.pendingCheckbox.checked = false;
+              state.pendingCheckbox = null;
+            }
+          }
+          
+          // Ctrl+N: Nueva fila
+          if (e.ctrlKey && e.key === 'n') {
+            e.preventDefault();
+            tableManager.addRow();
+          }
+          
+          // Ctrl+Z: Deshacer
+          if (e.ctrlKey && e.key === 'z' && !e.shiftKey) {
+            e.preventDefault();
+            historyManager.undo();
+          }
+          
+          // Ctrl+Y o Ctrl+Shift+Z: Rehacer
+          if ((e.ctrlKey && e.key === 'y') || (e.ctrlKey && e.shiftKey && e.key === 'z')) {
+            e.preventDefault();
+            historyManager.redo();
+          }
+          
+          // Ctrl+P: Imprimir
+          if (e.ctrlKey && e.key === 'p') {
+            e.preventDefault();
+            window.print();
+          }
+          
+          // Ctrl+S: Guardar PDF
+          if (e.ctrlKey && e.key === 's') {
+            e.preventDefault();
+            exportManager.pdf();
+          }
+        });
+      }
+      
+      // ==================== API PÚBLICA ====================
+      
+      return {
+        // Inicialización
+        init,
+        
+        // Gestión de estudiantes
+        openStudentModal: studentManager.openModal.bind(studentManager),
+        closeStudentModal: studentManager.closeModal.bind(studentManager),
+        closeModalOverlay: studentManager.closeModalOverlay.bind(studentManager),
+        filterStudents: studentManager.filterStudents.bind(studentManager),
+        selectStudent: studentManager.selectStudent.bind(studentManager),
+        
+        // Gestión de tabla
+        addRow: tableManager.addRow.bind(tableManager),
+        deleteRow: tableManager.deleteRow.bind(tableManager),
+        filterTable: utils.debounce(() => {
+          const query = document.getElementById('tableSearch').value;
+          tableManager.filterTable(query, state.currentFilter);
+        }, 300),
+        
+        // Filtros
+        setFilter(type) {
+          state.currentFilter = type;
+          document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.filter === type);
+          });
+          const query = document.getElementById('tableSearch').value;
+          tableManager.filterTable(query, type);
+          
+          // Actualizar visualización de tarjetas
+          document.querySelectorAll('.stat-card').forEach(card => {
+            card.classList.remove('active');
+          });
+          if (type !== 'all') {
+            const cardMap = { dem: 0, red: 1, rec: 3 };
+            const cards = document.querySelectorAll('.stat-card');
+            if (cards[cardMap[type]]) {
+              cards[cardMap[type]].classList.add('active');
+            }
+          }
+        },
+        
+        // Confirmaciones
+        cancelConfirm: confirmManager.cancel.bind(confirmManager),
+        acceptConfirm: confirmManager.accept.bind(confirmManager),
+        
+        // Exportación
+        exportPDF: exportManager.pdf.bind(exportManager),
+        exportExcel: exportManager.excel.bind(exportManager),
+        
+        // Utilidades
+        undo: historyManager.undo.bind(historyManager),
+        
+        clearForm() {
+          if (!confirm('¿Limpiar todo el formulario? Esta acción no se puede deshacer.\n\nSe perderán todos los datos no guardados.')) {
+            return;
+          }
+          
+          // Limpiar campos del estudiante
+          ['nombreEstudiante', 'nie', 'grado', 'anio'].forEach(id => {
+            document.getElementById(id).value = '';
+          });
+          document.getElementById('sexo').value = '';
+          document.getElementById('turno').value = '';
+          
+          // Limpiar storage
+          localStorage.removeItem(CONFIG.STUDENT_KEY);
+          localStorage.removeItem(CONFIG.STORAGE_KEY);
+          localStorage.removeItem(CONFIG.HISTORY_KEY);
+          
+          // Resetear estado
+          state.selectedStudent = null;
+          state.history = [];
+          state.historyIndex = -1;
+          
+          // Regenerar tabla
+          tableManager.generateTable();
+          calculations.recalculate();
+          
+          notifications.success('Formulario limpiado correctamente', 'Limpiar');
+        }
+      };
+    })();
+    
+    // Inicializar aplicación
+    document.addEventListener('DOMContentLoaded', app.init);
+  </script>
 </body>
 </html>
